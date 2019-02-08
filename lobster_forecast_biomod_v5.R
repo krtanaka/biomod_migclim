@@ -345,15 +345,13 @@ run = evals$run
 mw = data.frame(models, run, weight)
 mw$SDM = paste0(mw$models, "_", mw$run)
 
-jpeg("model_weights.jpg", res = 500, height = 5, width = 10, units = "in")
-
+# jpeg("model_weights.jpg", res = 500, height = 5, width = 10, units = "in")
 ggplot(mw, aes(x=SDM, y=weight, color=models)) + 
   # geom_point(size = 5) + 
   geom_point(aes(size = weight)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
   xlab("") 
-
-dev.off()
+# dev.off()
 
 # good_sdms = models with TSS > 0.5
 a = "lobster_AllData_RUN"
