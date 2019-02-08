@@ -15,7 +15,7 @@ library(doParallel)
 library(data.table)
 
 dir = "/Users/Kisei/"
-dir = "/Users/Chenlab/"
+# dir = "/Users/Chenlab/"
 
 # Prepare Biomod input data -----------------------------------------------
 load(paste0(dir, "Google Drive/R/Biomod/lobster/lobster_survey_data_spring_fall_combined_1984-2016.RData")) #load survey data
