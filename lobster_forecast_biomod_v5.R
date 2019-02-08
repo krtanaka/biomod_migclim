@@ -15,7 +15,7 @@ library(doParallel)
 library(data.table)
 
 dir = "/Users/Kisei/"
-dir = "/Users/Chenlab/"
+# dir = "/Users/Chenlab/"
 
 # Prepare Biomod input data -----------------------------------------------
 load(paste0(dir, "Google Drive/R/Biomod/lobster/lobster_survey_data_spring_fall_combined_1984-2016.RData")) #load survey data
@@ -396,9 +396,8 @@ dev.off()
 save(final_sdms, mw, file = "lobster_final_sdms.RData")
 
 # save response surves ----------------------------------------------------
-dir = "C:/Users/Kisei/"
-dir = "C:/Users/Chenlab/"
-dir = "~/"
+dir = "/Users/Kisei/"
+dir = "/Users/Chenlab/"
 
 setwd(paste0(dir, "/Google Drive/R/Biomod/lobster"))
 load("Biomod_Results.RData")
@@ -454,9 +453,8 @@ myRespPlot3D <- response.plot2(models  = myModel[1],
 
 
 # load cm2.6 data and project habitat change year 1-80 -------------------------------------
-dir = "C:/Users/Kisei/"
-dir = "C:/Users/Chenlab/"
-dir = "~/"
+dir = "/Users/Kisei/"
+dir = "/Users/Chenlab/"
 
 setwd(paste0(dir, "/Google Drive/R/Biomod/lobster"))
 load("Biomod_Results.RData")
