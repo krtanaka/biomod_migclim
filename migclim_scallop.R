@@ -13,9 +13,7 @@ library(rworldxtra); data("countriesHigh")
 
 dir = "/Users/Kisei" #pc
 
-species = c("lobster", "scallop")[1]
-
-setwd(paste0(dir, "/Google Drive/R/Biomod/", species, "/"))
+setwd(paste0(dir, "/Google Drive/R/Biomod/scallop/"))
 
 analysis = "proj" #dispersion based on CM2.6 data, year 1-80
 

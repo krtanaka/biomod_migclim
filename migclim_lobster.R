@@ -16,7 +16,7 @@ dir = "/Users/Kisei"
 setwd(paste0(dir, "/Google Drive/R/Biomod/lobster"))
 
 analysis = "proj" #dispersion based on CM2.6 data, year 1-80
-analysis = "hind" #dispersion based on fvcom data, 1984-2013
+# analysis = "hind" #dispersion based on fvcom data, 1984-2013
 
 # month specific ----------------------------------------------------------
 month = "apr"
