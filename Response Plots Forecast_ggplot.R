@@ -1,6 +1,4 @@
-dir = "~/"
-dir = "C:/Users/Kisei/"
-dir = "C:/Users/Chenlab/"
+dir = "/Users/Kisei/"
 
 setwd(paste0(dir, "/Google Drive/R/Biomod/lobster"))
 load("lobster_final_SDMs.RData")
