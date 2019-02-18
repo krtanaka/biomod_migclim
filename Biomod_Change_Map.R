@@ -3,7 +3,6 @@ library(automap)
 library(gstat)
 library(rworldxtra); data(countriesHigh)
 
-# see changes in HSI
 setwd("/Kisei/Google Drive/R/Biomod/lobster")
 
 # time_step = "sep" #choose individual month or season (e.g. apr, sep, spring, fall)
