@@ -4,15 +4,13 @@ library(gstat)
 library(rworldxtra); data(countriesHigh)
 
 # see changes in HSI ------------------------------------------------------
-setwd("C:/Users/Kisei/Google Drive/R/Biomod/lobster")
-setwd("~/Kisei/Google Drive/R/Biomod/lobster")
+setwd("/Kisei/Google Drive/R/Biomod/lobster")
 
 # time_step = "sep" #choose individual month or season (e.g. apr, sep, spring, fall)
 get_trend = function(time_step){
   
-  POS = read.csv(paste0("C:/Users/Kisei/Google Drive/R/Biomod/lobster/Biomod_1_80_", time_step, ".csv"))
-  # POS = read.csv(paste0("~/Google Drive/R/Biomod/Biomod_1_80_", month, ".csv"))
-  
+  POS = read.csv(paste0("/Users/Kisei/Google Drive/R/Biomod/lobster/Biomod_1_80_", time_step, ".csv"))
+
   POS = POS[,c(2,1,3:82)]
   
   names(POS)[1] = "Y"
@@ -65,8 +63,7 @@ apr$September = sep$var1.pred
 apr$October = oct$var1.pred
 apr$November = nov$var1.pred
 
-source("C:/Users/Kisei/Google Drive/R/misc/color palette function.R")
-source("~/Google Drive/R/misc/color palette function.R")
+source("/Users/Kisei/Google Drive/R/misc/color palette function.R")
 
 steps = c("blue", "white", "red")
 pal = color.palette(steps, space="rgb")
@@ -93,8 +90,7 @@ fall = get_trend("fall")
 spring$Spring = spring$var1.pred
 spring$Fall = fall$var1.pred
 
-source("C:/Users/Kisei/Google Drive/R/misc/color palette function.R")
-source("~/Google Drive/R/misc/color palette function.R")
+source("/Users/Kisei/Google Drive/R/misc/color palette function.R")
 
 steps = c("blue", "white", "red")
 pal = color.palette(steps, space="rgb")
@@ -113,8 +109,6 @@ spplot(spring,
        scales=list(draw=T),
        colorkey = T) 
 dev.off()
-
-
 
 # ks test -----------------------------------------------------------------
 
