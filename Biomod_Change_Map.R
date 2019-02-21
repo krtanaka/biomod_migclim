@@ -3,7 +3,7 @@ library(automap)
 library(gstat)
 library(rworldxtra); data(countriesHigh)
 
-setwd("/Kisei/Google Drive/R/Biomod/lobster")
+setwd("/Users/Kisei/Google Drive/R/Biomod/lobster")
 
 # time_step = "sep" #choose individual month or season (e.g. apr, sep, spring, fall)
 get_trend = function(time_step){
@@ -218,8 +218,8 @@ sp_map = function(x, y, z, df){
   
   xrange = range(df$x)
   yrange = range(df$y)
-  grid= expand.grid(x = seq(from = xrange[1], to = xrange[2], by = 0.25), 
-                    y = seq(from = yrange[1], to = yrange[2], by = 0.25))
+  grid= expand.grid(x = seq(from = xrange[1], to = xrange[2], by = 0.1), 
+                    y = seq(from = yrange[1], to = yrange[2], by = 0.1))
   
   gridded(grid) = ~x + y
   
