@@ -264,12 +264,11 @@ myBiomodModelEval <- get_evaluations(myBiomodModelOut)
 save.image("Biomod_Results.RData")
 # save.image("Biomod_Results_with_Default_Options.RData")
 
-# Load the saved Biomod results --------------------------------------------------------
-dir = "/Users/Kisei/"
-dir = "/Users/Chenlab/"
+# Load the saved Biomod results, both lobster and scallop --------------------------------------------------------
+sp = c("lobster", "scallop")[2]
 
-setwd(paste0(dir, "/Google Drive/R/Biomod/lobster"))
-load(paste0(dir, "/Google Drive/R/Biomod/lobster/Biomod_Results.RData"))
+setwd(paste0(dir, "/Google Drive/R/Biomod/", sp))
+load("Biomod_Results.RData")
 
 # Get TSS and ROC summaries -------------------------------------------------------
 # summarize TSS and ROC scores of all models
@@ -297,103 +296,189 @@ tss = cbind(models, tss)
 tss
 # write_csv(tss, "TSS.csv")
 
-# Compare model performance and select final models -------------------------------
-#organize all SDMs by TSS and ROC
-model_eval = t(as.data.frame(myBiomodModelEval))
-seq = seq(1, nrow(model_eval), by = 4)
-model_eval = model_eval[seq,]
-model_eval = as.data.frame(model_eval)
-model_eval$combo = model_eval$TSS + model_eval$ROC
-model_eval=model_eval[order(-model_eval$combo),]
-row.names(model_eval) <- gsub(x = row.names(model_eval), pattern = "MAXENT.Phillips", replacement = "MAXENT1")  
-row.names(model_eval) <- gsub(x = row.names(model_eval), pattern = "MAXENT.Tsuruoka", replacement = "MAXENT2")  
+# Compare model performance and select final models, both lobster and scallop -------------------------------
+sp = c("lobster", "scallop")
 
-sdm = data.frame(model = rep(NA,nrow(model_eval)),run = rep(NA,nrow(model_eval)))
+for (i in 1:length(sp)) {
+  
+  setwd(paste0(dir, "/Google Drive/R/Biomod/", sp[[i]]))
+  load("Biomod_Results.RData")
+  
+  #organize all SDMs by TSS and ROC
+  model_eval = t(as.data.frame(myBiomodModelEval))
+  seq = seq(1, nrow(model_eval), by = 4)
+  model_eval = model_eval[seq,]
+  model_eval = as.data.frame(model_eval)
+  model_eval$combo = model_eval$TSS + model_eval$ROC
+  model_eval=model_eval[order(-model_eval$combo),]
+  row.names(model_eval) <- gsub(x = row.names(model_eval), pattern = "MAXENT.Phillips", replacement = "MAXENT1")  
+  row.names(model_eval) <- gsub(x = row.names(model_eval), pattern = "MAXENT.Tsuruoka", replacement = "MAXENT2")  
+  
+  sdm = data.frame(model = rep(NA,nrow(model_eval)),run = rep(NA,nrow(model_eval)))
+  
+  for (j in 1:nrow(model_eval)){
+    ff = strsplit(row.names(model_eval[j,]), '[._]')[[1]]
+    sdm[j,1] = ff[3]
+    sdm[j,2] = gsub("RUN", "", ff[length(ff)-1]) 
+  } 
+  
+  evals = cbind(sdm,model_eval);rownames(evals) <- c()
+  
+  d1 = summarySE(evals, measurevar = "TSS", groupvars = c("model"))
+  d2 = summarySE(evals, measurevar = "ROC", groupvars = c("model"))
+  
+  eval = merge(d1[c("model","TSS","se")],d2[c("model","ROC","se")], by = "model")
+  names(eval) = c("Model", "TSS", "SE2", "ROC", "SE1")
+  
+  jpeg(paste0("/Users/Kisei/Desktop/model_evaluation_legend.jpg"), res = 500, height = 7, width = 2, units = "in")
+  
+  legend = ggplot(data = eval,aes(x = ROC, y = TSS, colour = Model, shape = Model)) +
+    geom_point(size=4) +
+    scale_shape_manual(values = rep(18, 11))+
+    geom_errorbar(aes(ymin = TSS-SE2, ymax = TSS + SE2)) +
+    geom_errorbarh(aes(xmin = ROC-SE1, xmax = ROC + SE1)) + 
+    ylim(c(0.2,0.7)) + xlim(c(0.6, 0.95))
+  
+  legend = cowplot::get_legend(legend)
+  grid.newpage()
+  grid.draw(legend)
+  dev.off()
 
-for (j in 1:nrow(model_eval)){
-  ff = strsplit(row.names(model_eval[j,]), '[._]')[[1]]
-  sdm[j,1] = ff[3]
-  sdm[j,2] = gsub("RUN", "", ff[length(ff)-1]) 
-} 
-
-evals = cbind(sdm,model_eval);rownames(evals) <- c()
-
-d1 = summarySE(evals, measurevar = "TSS", groupvars = c("model"))
-d2 = summarySE(evals, measurevar = "ROC", groupvars = c("model"))
-
-eval = merge(d1[c("model","TSS","se")],d2[c("model","ROC","se")], by = "model")
-names(eval) = c("Model", "TSS", "SE2", "ROC", "SE1")
-
-# jpeg(filename = "model_evaluation.jpg", res = 500, height = 5, width = 7, units = "in")
-ggplot(data = eval,aes(x = ROC, y = TSS, colour = Model, shape = Model)) +
-  geom_point(size=4) +
-  scale_shape_manual(values = rep(18, 11))+
-  geom_errorbar(aes(ymin = TSS-SE2, ymax = TSS + SE2)) +
-  geom_errorbarh(aes(xmin = ROC-SE1, xmax = ROC + SE1)) + 
-  ggtitle("")
-# dev.off()
-
-#remove SDMs with TSS < 0.5
-evals = subset(evals, TSS > 0.5)
-
-# weighting all models by TSS, ROC, and combined weight
-weight = evals[c(1:nrow(evals)),5] #4 is ROC, 5 is combo
-scale <- function(x){(x-min(x))/(max(x)-min(x))} #scale weight to 0-1
-weight = scale(weight)
-models = evals$model
-run = evals$run
-mw = data.frame(models, run, weight)
-mw$SDM = paste0(mw$models, "_", mw$run)
-
-# jpeg("model_weights.jpg", res = 500, height = 5, width = 10, units = "in")
-ggplot(mw, aes(x=SDM, y=weight, color=models)) + 
-  # geom_point(size = 5) + 
-  geom_point(aes(size = weight)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  xlab("") 
-# dev.off()
-
-# good_sdms = models with TSS > 0.5
-a = "lobster_AllData_RUN"
-good_sdms = paste0(a, mw$run, "_", mw$models)
-good_sdms = gsub("MAXENT1", "MAXENT.Phillips", good_sdms)
-good_sdms = gsub("MAXENT2", "MAXENT.Tsuruoka", good_sdms)
-
-d = myBiomodProj@proj@val@layers
-dd = stack(d)
-ddd = subset(dd,good_sdms)
-plot(ddd)
-
-# create final_sdms = visually check each model output and remove any unrealistic models
-mw = mw[mw$models!="CTA",]
-mw = mw[mw$models!="MAXENT1",]
-mw = mw[mw$models!="GBM",]
-
-final_sdms = paste0(a, mw$run, "_", mw$models)
-final_sdms = gsub("MAXENT1", "MAXENT.Phillips", final_sdms)
-final_sdms = gsub("MAXENT2", "MAXENT.Tsuruoka", final_sdms)
-d = myBiomodProj@proj@val@layers
-dd = stack(d)
-ddd = subset(dd,final_sdms)
-
-#do weighted mean
-avg = weighted.mean(ddd, mw$weight); dev.off(); 
-plot(avg, zlim = c(0,1000), col = parula(100), xaxt='n', yaxt='n')
-map("world", type = "b", col = "gray", add = T, fill = T, resolution = 0, border=FALSE)
-box()
-degAxis(1, cex.axis = 1)
-degAxis(2, cex.axis = 1)
-
-jpeg("Biomod_Parsimonious_Model_Prediction.jpg", res = 500, height = 10, width = 10, units = "in")
-plot(avg, zlim = c(0,1000), col = parula(100), xaxt='n', yaxt='n')
-map("world", type = "b", col = "gray", add = T, fill = T, resolution = 0, border=FALSE)
-box()
-degAxis(1, cex.axis = 1)
-degAxis(2, cex.axis = 1)
-dev.off()
-
-#save list of final SDMs and weights. 
-save(final_sdms, mw, file = "lobster_final_sdms.RData")
+  jpeg(paste0("/Users/Kisei/Desktop/model_evaluation_", sp[[i]], ".jpg"), res = 500, height = 7, width = 5, units = "in")
+  
+  if (sp[[i]] == "lobster") {
+    p = ggplot(data = eval,aes(x = ROC, y = TSS, colour = Model, shape = Model)) +
+      geom_point(size=4) +
+      scale_shape_manual(values = rep(18, 11))+
+      geom_errorbar(aes(ymin = TSS-SE2, ymax = TSS + SE2)) +
+      geom_errorbarh(aes(xmin = ROC-SE1, xmax = ROC + SE1)) + 
+      ggtitle("H. americanus")+
+      ylim(c(0.2,0.7)) + xlim(c(0.6, 0.95))+ 
+      theme(legend.position="none")
+  }
+  
+  if (sp[[i]] == "scallop") {
+    p =  ggplot(data = eval,aes(x = ROC, y = TSS, colour = Model, shape = Model)) +
+      geom_point(size=4) +
+      scale_shape_manual(values = rep(18, 11))+
+      geom_errorbar(aes(ymin = TSS-SE2, ymax = TSS + SE2)) +
+      geom_errorbarh(aes(xmin = ROC-SE1, xmax = ROC + SE1)) + 
+      ggtitle("P. magellanicus")+
+      ylim(c(0.2,0.7)) + xlim(c(0.6, 0.95))+ 
+      theme(legend.position="none")
+    
+  }
+  
+  print(p)
+  
+  # ggplot(data = eval,aes(x = ROC, y = TSS, colour = Model, label = Model)) +
+  #   geom_point(size=2) + geom_text(aes(label = Model), hjust = -0.1, vjust = -0.8, size = 5) +
+  #   scale_shape_manual(values = rep(18, 11))+
+  #   geom_errorbar(aes(ymin = TSS-SE2, ymax = TSS + SE2)) +
+  #   geom_errorbarh(aes(xmin = ROC-SE1, xmax = ROC + SE1)) +
+  #   ggtitle("") +
+  #   xlim(0.5, 1) +
+  #   ylim(0.3, 0.8) +
+  #   theme_classic(base_size = I(20)) +
+  #   theme(legend.position="none")
+  
+  dev.off()
+  
+  #remove SDMs with TSS < 0.5
+  evals = subset(evals, TSS > 0.5)
+  
+  # weighting all models by TSS, ROC, and combined weight
+  weight = evals[c(1:nrow(evals)),5] #4 is ROC, 5 is combo
+  scale <- function(x){(x-min(x))/(max(x)-min(x))} #scale weight to 0-1
+  weight = scale(weight)
+  models = evals$model
+  run = evals$run
+  mw = data.frame(models, run, weight)
+  mw$SDM = paste0(mw$models, "_", mw$run)
+  
+  jpeg(paste0("/Users/Kisei/Desktop/model_weights_legend.jpg"), res = 500, height = 7, width = 2, units = "in")
+  
+  legend = ggplot(mw, aes(x=weight, y=SDM, color=models)) + 
+    geom_point(aes(size = weight)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+  
+  legend = cowplot::get_legend(legend)
+  grid.newpage()
+  grid.draw(legend)
+  dev.off()
+  
+  jpeg(paste0("/Users/Kisei/Desktop/model_weights_", sp[[i]], ".jpg"), res = 500, height = 7, width = 5, units = "in")
+  
+  if (sp[[i]] == "lobster") {
+    p = ggplot(mw, aes(x=weight, y=SDM, color=models)) + 
+      # geom_point(size = 5) + 
+      geom_point(aes(size = weight)) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+      ggtitle("H. americanus")+ 
+      theme(legend.position="none")
+  }
+  
+  if (sp[[i]] == "scallop") {
+    p = ggplot(mw, aes(x=weight, y=SDM, color=models)) + 
+      # geom_point(size = 5) + 
+      geom_point(aes(size = weight)) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+      ggtitle("P. magellanicus")+ 
+      theme(legend.position="none")
+  }
+  
+  print(p)
+  dev.off()
+  
+  # good_sdms = models with TSS > 0.5
+  a = paste0(sp[[i]], "_AllData_RUN")
+  good_sdms = paste0(a, mw$run, "_", mw$models)
+  good_sdms = gsub("MAXENT1", "MAXENT.Phillips", good_sdms)
+  good_sdms = gsub("MAXENT2", "MAXENT.Tsuruoka", good_sdms)
+  
+  d = myBiomodProj@proj@val@layers
+  dd = stack(d)
+  ddd = subset(dd,good_sdms)
+  
+  jpeg(paste0("/Users/Kisei/Desktop/good_sdms_", sp[[i]], ".jpg"), res = 500, height = 10, width = 15, units = "in")
+  plot(ddd)
+  dev.off()
+  
+  # create final_sdms = visually check each model output and remove any unrealistic models
+  mw = mw[mw$models!="CTA",]
+  mw = mw[mw$models!="MAXENT1",]
+  mw = mw[mw$models!="GBM",]
+  
+  final_sdms = paste0(a, mw$run, "_", mw$models)
+  final_sdms = gsub("MAXENT1", "MAXENT.Phillips", final_sdms)
+  final_sdms = gsub("MAXENT2", "MAXENT.Tsuruoka", final_sdms)
+  d = myBiomodProj@proj@val@layers
+  dd = stack(d)
+  ddd = subset(dd,final_sdms)
+  
+  #do weighted mean
+  avg = weighted.mean(ddd, mw$weight); dev.off(); 
+  plot(avg, zlim = c(0,1000), col = parula(100), xaxt='n', yaxt='n')
+  map("world", type = "b", col = "gray", add = T, fill = T, resolution = 0, border=FALSE)
+  box()
+  degAxis(1, cex.axis = 1)
+  degAxis(2, cex.axis = 1)
+  
+  avg@data@values = (avg@data@values - avg@data@min)/(avg@data@max - avg@data@min)
+  
+  jpeg(paste0("/Users/Kisei/Desktop/Biomod_Parsimonious_Model_Prediction", sp[[i]], ".jpg"), res = 500, height = 10, width = 10, units = "in")
+  plot(avg, zlim = c(0,1), col = parula(100), xaxt='n', yaxt='n')
+  map("world", type = "b", col = "gray", add = T, fill = T, resolution = 0, border=FALSE)
+  box()
+  degAxis(1, cex.axis = 1)
+  degAxis(2, cex.axis = 1, las = 1)
+  legend("topleft", ifelse(sp[[i]] == "lobster", "H. americanus", "P. magellanicus"), bty = "n", cex = 2)
+  dev.off()
+  
+  #save list of final SDMs and weights. 
+  save(final_sdms, mw, file = paste0(sp[[i]], "_final_sdms.RData"))
+  
+}
 
 # save response surves ----------------------------------------------------
 dir = "/Users/Kisei/"
