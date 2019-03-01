@@ -110,7 +110,6 @@ spplot(spring,
 dev.off()
 
 # ks test -----------------------------------------------------------------
-
 #load biomod output (cm2.6 1-80 years presence-absence)
 setwd("/Users/Kisei/Google Drive/R/Biomod/lobster")
 df <- read_csv("Biomod_1_80_fall.csv") #lobster fall biomod output
