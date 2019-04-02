@@ -4,13 +4,23 @@ library(gstat)
 library(rworldxtra); data(countriesHigh)
 library(readr)
 library(easyGgplot2)
+library(colorRamps)
+library(grid)
+library(gridExtra)
+library(ggpubr)
+library(Rmisc)
 
 setwd("/Users/Kisei/Google Drive/R/Biomod/lobster")
+# setwd("/Users/Kisei/Desktop/lobster")
+
+source("/Users/Kisei/Google Drive/R/misc/color palette function.R")
+steps = c("blue", "white", "red")
+col = color.palette(steps, space="rgb")
 
 # map average probability first -------------------------------------------
 get_avg = function(time_step){
   
-  POS = read.csv(paste0("/Users/Kisei/Google Drive/R/Biomod/lobster/Biomod_1_80_", time_step, ".csv"))
+  POS = read.csv(paste0("Biomod_1_80_", time_step, ".csv"))
   
   POS = POS[,c(2,1,3:82)]
   
@@ -44,22 +54,33 @@ fall = get_avg("fall")
 spring$Spring = spring$var1.pred
 spring$Fall = fall$var1.pred
 
-png("/Users/Kisei/Desktop/Lobster_Habitat_Year_1.png", width = 2000, height = 2200, res = 500)
+png("/Users/Kisei/Desktop/Lobster_Fall.png", width = 5, height = 4, res = 500, units = "in")
 spplot(spring, 
-       main=list(label="H.americanus",cex=1.5),
+       main=list(label="American lobster - fall",cex=1.5),
        sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
        at = (0:100)/100, #for slope
        col.regions = matlab.like(100),
-       zcol = c("Spring", "Fall"),
+       zcol = c("Fall"),
        scales=list(draw=T),
-       colorkey = T) 
+       colorkey = F) 
+dev.off()
+
+png("/Users/Kisei/Desktop/Lobster_Spring.png", width = 5, height = 4, res = 500, units = "in")
+spplot(spring, 
+       main=list(label="American lobster - spring",cex=1.5),
+       sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
+       at = (0:100)/100, #for slope
+       col.regions = matlab.like(100),
+       zcol = c("Spring"),
+       scales=list(draw=T),
+       colorkey = F) 
 dev.off()
 
 # Map trend ---------------------------------------------------------------
 # time_step = "sep" #choose individual month or season (e.g. apr, sep, spring, fall)
 get_trend = function(time_step){
   
-  POS = read.csv(paste0("/Users/Kisei/Google Drive/R/Biomod/lobster/Biomod_1_80_", time_step, ".csv"))
+  POS = read.csv(paste0("Biomod_1_80_", time_step, ".csv"))
   
   POS = POS[,c(2,1,3:82)]
   
@@ -113,12 +134,6 @@ apr$September = sep$var1.pred
 apr$October = oct$var1.pred
 apr$November = nov$var1.pred
 
-source("/Users/Kisei/Google Drive/R/misc/color palette function.R")
-
-steps = c("blue", "white", "red")
-pal = color.palette(steps, space="rgb")
-col = pal
-
 max = max(apr@data, na.rm = T)*100
 min = max*-1
 
@@ -142,17 +157,13 @@ spring$Fall = fall$var1.pred
 
 source("/Users/Kisei/Google Drive/R/misc/color palette function.R")
 
-steps = c("blue", "white", "red")
-pal = color.palette(steps, space="rgb")
-col = pal
-
-max = max(spring@data, na.rm = T)*100
+max = max(spring@data, na.rm = T)*120
 min = max*-1
 
 # png("C:/Users/Kisei/Google Drive/R/Biomod/Habitat_Change.png", width = 4000, height = 5000, res = 500)
 png("/Users/Kisei/Desktop/Lobster_Habitat_Change_Season.png", width = 2000, height = 2200, res = 500)
 spplot(spring, 
-       main=list(label="H.americanus",cex=1.5),
+       main=list(label="American lobster",cex=1.5),
        sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
        at = (min:max)/100, #for slope
        col.regions = col,
@@ -165,15 +176,16 @@ dev.off()
 #load biomod output (cm2.6 1-80 years presence-absence)
 season = list("fall", "spring")
 
+#choose analysis
+test = "first_last_10_years" #compare first and last 10 years
+# test = "first_last_20_years" #compare first and last 40 years
+
 for (j in 1:length(season)){
   
+  j = 1
+  
   if (j == 1) df <- read_csv("Biomod_1_80_fall.csv") #lobster fall biomod output
-  
   if (j == 2) df <- read_csv("Biomod_1_80_spring.csv") #lobster spring biomod output
-  
-  #choose analysis
-  test = "first_last_10_years" #compare first and last 10 years
-  # test = "first_last_40_years" #compare first and last 40 years
   
   latlon = df[1:2]
   df = df[3:82]
@@ -251,7 +263,7 @@ for (j in 1:length(season)){
     #                   addDensity=TRUE,
     #                   addMeanLine=TRUE,  meanLineSize=1.5) +
     #   # ylim(0,100) + xlim(0.15,0.3) + 
-    #   xlab("Presence Probability") +
+    #   xlab("Habitat Suitability") +
     #   theme_classic()
     
     res[i,] = c(D, ts, lt, gt)
@@ -269,7 +281,7 @@ for (j in 1:length(season)){
   coordinates(latlon)=~x+y
   area = rgdal::readOGR("/Users/Kisei/Google Drive/Research/GIS/NOAA_Statistical_Area/Statistical_Areas.shp")
   area = area[which(area$Id %in% c(464:465, 511:515, 521:526, 537:539, 541:543, 561:562, 611:616, 621:626)),]
-  CRS.new = CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")  #EPSG:102003
+  CRS.new = CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0") #EPSG:102003
   proj4string(latlon) <- CRS.new 
   proj4string(area) <- CRS.new
   area <- over(latlon, area)
@@ -308,6 +320,12 @@ for (j in 1:length(season)){
   
   ks$P_0.05 = ifelse(ks$ks.ts < 0.05, ks$ks.ts, NA)
   
+  ks1 = ks[,c("x","y","GOMGBK_SNE","D", "P_0.05")]; colnames(ks1)[3] = "Area"
+  ks2 = ks[,c("x","y","Nearshore_Area","D", "P_0.05")]; colnames(ks2)[3] = "Area"
+  ks_df = rbind(ks1, ks2)
+  
+  ks_df$Area = gsub('GBK', 'GB', ks_df$Area)
+  ks_df$Area <- gsub(' Neashore Management Area', ' Neashore', ks_df$Area)
   
   scale_x_longitude <- function(xmin=-180, xmax=180, step=1, ...) {
     xbreaks <- seq(xmin,xmax,step)
@@ -320,38 +338,91 @@ for (j in 1:length(season)){
     return(scale_y_continuous("", breaks = ybreaks, labels = ylabels, expand = c(0, 0), ...))
   }  
   
-  p1 = ggplot() +
-    geom_point(data = ks, aes(x = x, y = y, color = D),size = 1.5) +
-    xlab("") +
-    ylab("") +
-    borders(xlim = xlims,ylim = ylims, fill = "gray") +
+  # p1 = ggplot() +
+  #   geom_point(data = ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),], 
+  #              aes(x = x, y = y, color = D),
+  #              size = 1) +
+  #   # xlab("") +
+  #   # ylab("") +
+  #   facet_wrap(~Area, scales = "free", ncol = 1) + 
+  #   # borders(xlim = xlims,ylim = ylims, fill = "gray") +
+  #   # coord_quickmap(xlim = xlims,ylim = ylims) +
+  #   coord_quickmap() +
+  #   scale_colour_gradientn(colours = col(length(unique(ks_df$D)))) + #parura(100)
+  #   theme_pubr() + 
+  #   theme(legend.position="right") + 
+  #   # theme(legend.justification = c(0,1), legend.position = c(0,1))
+  #   scale_x_longitude(xmin=-180, xmax=180, step=2) +
+  #   scale_y_latitude(ymin=-180, ymax=180, step=2) +
+  #   ggtitle(paste0("American_lobster_", season[j]))
+
+  # p2 = ggplot() +
+  #   geom_point(data = ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),], 
+  #              aes(x = x, y = y, color = P_0.05),
+  #              size = 1) +
+  #   # xlab("") +
+  #   # ylab("") +
+  #   facet_wrap(~Area, scales = "free", ncol = 1) + 
+  #   # borders(xlim = xlims,ylim = ylims, fill = "gray") +
+  #   # coord_quickmap(xlim = xlims,ylim = ylims) +
+  #   coord_quickmap() +
+  #   scale_colour_gradientn(colours = col(length(unique(ks_df$P_0.05)))) + #parura(100)
+  #   theme_pubr() + 
+  #   theme(legend.position="right") + 
+  #   # theme(legend.justification = c(0,1), legend.position = c(0,1))
+  #   scale_x_longitude(xmin=-180, xmax=180, step=2) +
+  #   scale_y_latitude(ymin=-180, ymax=180, step=2) +
+  #   ggtitle(paste0("American_lobster_", season[j]))
+  
+  p1 = ggplot(data = ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),], 
+              aes(x = x, y = y, fill = D)) +
+    geom_raster(interpolate = TRUE) +
+    scale_fill_gradientn(colours = col(length(unique(ks_df$D)))) + #parura(100)
+    facet_wrap(~Area, ncol = 1) + 
     coord_quickmap(xlim = xlims,ylim = ylims) +
-    scale_colour_gradientn(colours = pals::parula(length(unique(ks$D)))) + #parura(100)
-    theme_bw() + 
+    borders(xlim = xlims,ylim = ylims, fill = "gray") +
+    theme_pubr(I(18)) + 
+    theme(legend.position="none", axis.text.x = element_text(angle = 45, hjust = 1)) + 
     scale_x_longitude(xmin=-180, xmax=180, step=2) +
     scale_y_latitude(ymin=-180, ymax=180, step=2) +
-    labs(title = "", x = "Lon", y = "Lat", color = "D-statistic") + 
-    theme(legend.justification = c(1, 0), legend.position = c(1, 0))
+    ggtitle(paste0("American_lobster_", season[j]))
   
-  p2 = ggplot() +
-    geom_point(data = ks, aes(x = x, y = y, color = P_0.05),size = 1.5 ) +
-    xlab("") +
-    ylab("") +
-    borders(xlim = xlims,ylim = ylims, fill = "gray") +
+  p2 = ggplot(data = ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),], 
+              aes(x = x, y = y, fill = P_0.05)) +
+    geom_raster(interpolate = F) +
+    scale_fill_gradientn(colours = col(length(unique(ks_df$P_0.05)))) + #parura(100)
+    facet_wrap(~Area, ncol = 1) + 
     coord_quickmap(xlim = xlims,ylim = ylims) +
-    scale_colour_gradientn(colours = rev(pals::parula(length(unique(ks$P_0.05))))) + #parura(100)
-    theme_bw() + 
+    borders(xlim = xlims,ylim = ylims, fill = "gray") +
+    theme_pubr(I(18)) + 
+    theme(legend.position="none", axis.text.x = element_text(angle = 45, hjust = 1)) + 
     scale_x_longitude(xmin=-180, xmax=180, step=2) +
     scale_y_latitude(ymin=-180, ymax=180, step=2) +
-    labs(title = "", x = "Lon", y = "Lat", color = "P < 0.05") + 
-    theme(legend.justification = c(1, 0), legend.position = c(1, 0))
+    ggtitle(paste0("American_lobster_", season[j]))
   
-  p = plot_grid(p1, p2, align = 'vh', ncol = 2, nrow = 1, hjust = -1)
+  # grid.arrange(p1, p2, nrow = 1)
   
-  png("/Users/Kisei/Desktop/Lobster_D_P0.05.png", units = "px", res = 100, width=1200,height=800) #res = 500, width=6000,height=6000
-  print(p)
+  png(paste0("/Users/Kisei/Desktop/Lobster_D_P0.05_", season[[j]], ".png"), 
+      units = "in", res = 500, width = 8, height = 10) #res = 500, width=6000,height=6000
+  grid.arrange(p1, p2, nrow = 1)
   dev.off()
   
+  png(paste0("/Users/Kisei/Desktop/Lobster_D_", season[[j]], ".png"), 
+      units = "in", res = 500, width = 5, height = 16) #res = 500, width=6000,height=6000
+  p1
+  dev.off()
+  
+  png(paste0("/Users/Kisei/Desktop/Lobster_P_", season[[j]], ".png"), 
+      units = "in", res = 500, width = 5, height = 16) #res = 500, width=6000,height=6000
+  p2
+  dev.off()
+  
+  d1 = summarySE(ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),], measurevar = "D", groupvars = c("Area"))
+  d2 = summarySE(ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),], measurevar = "P_0.05", groupvars = c("Area"), na.rm = T)
+  
+  write.csv(d1, paste0("/Users/Kisei/Desktop/", paste0("Lobster_", season[j]), "_D.csv"))
+  write.csv(d2, paste0("/Users/Kisei/Desktop/", paste0("Lobster_", season[j]), "_P.csv"))
+ 
   sp_map = function(x, y, z, df){
     
     coordinates(df) = ~x + y
@@ -382,31 +453,34 @@ for (j in 1:length(season)){
   D$KS_Less = ks_lt$var1.pred
   D$KS_Greater = ks_gt$var1.pred
   
-  jpeg(paste0("Two-Sample_KS_test_", test, "_", season[[j]], ".jpg"), res = 500, height = 5, width = 7, units = "in")
+  jpeg(paste0("/Users/Kisei/Desktop/Lobster_Two-Sample_KS_test_", test, "_", season[[j]], ".jpg"), res = 500, height = 5, width = 7, units = "in")
   spplot(D, 
          sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
          at = (0:1000)/1000,
-         col.regions = rev(pals::parula(1000)),
+         # col.regions = rev(pals::parula(1000)),
+         col.regions = col(1000),
          zcol = c("Two_Sample_KS_Pval"),
          scales=list(draw=T),
          colorkey = T)
   dev.off()
   
-  jpeg(paste0("Two-Sample_KS_test_P0.05_", test, "_", season[[j]], ".jpg"), res = 500, height = 5, width = 7, units = "in")
+  jpeg(paste0("/Users/Kisei/Desktop/Lobster_Two-Sample_KS_test_P0.05_", test, "_", season[[j]], ".jpg"), res = 500, height = 5, width = 7, units = "in")
   spplot(D, 
          sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
          at = (0:50)/1000,
-         col.regions = rev(pals::parula(1000)),
+         # col.regions = rev(pals::parula(1000)),
+         col.regions = col(1000),
          zcol = c("P_0.05"),
          scales=list(draw=T),
          colorkey = T)
   dev.off()
   
-  jpeg(paste0("Two-sample_KS_Tests_D_", test, "_", season[[j]], ".jpg"), res = 500, height = 5, width = 7, units = "in")
+  jpeg(paste0("/Users/Kisei/Desktop/Lobster_Two-sample_KS_Tests_D_", test, "_", season[[j]], ".jpg"), res = 500, height = 5, width = 7, units = "in")
   spplot(D, 
          sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
          at = (0:100)/100,
-         col.regions = pals::parula(length(na.omit(D$var1.pred))),
+         # col.regions = pals::parula(length(na.omit(D$var1.pred))),
+         col.regions = col(length(na.omit(D$var1.pred))),
          zcol = c("D"),
          scales=list(draw=T),
          colorkey = T)
@@ -417,7 +491,8 @@ for (j in 1:length(season)){
          main=list(label="H. americanus",cex=1.5),
          sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
          at = (0:100)/100,
-         col.regions = rev(matlab.like(1000)),
+         # col.regions = rev(matlab.like(1000)),
+         col.regions = col(1000),
          zcol = c("D", "P_0.05"),
          scales=list(draw=T),
          colorkey = T)
@@ -431,7 +506,7 @@ for (j in 1:length(season)){
     
     if(i == 1) {
       dd = df[which(df$GOMGBK_SNE == "GOM_GBK"),]
-      Area = "GOM_GBK"
+      Area = "GOM_GB"
     }
     
     if(i == 2) {
@@ -441,21 +516,21 @@ for (j in 1:length(season)){
     
     if(i == 3) {
       dd = df[which(df$Nearshore_Area == "GOM_GBK Neashore Management Area"),]
-      Area = "GOM_GBK Neashore"}
+      Area = "GOM_GB Neashore"}
     
     if(i == 4) {
       dd = df[which(df$Nearshore_Area == "SNE Neashore Management Area"),]
       Area = "SNE Neashore"
     }
     
-    x = as.vector(t(dd[,9:18])) #first 10 years
-    y = as.vector(t(dd[,79:length(dd)])) #last 10 years
+    x = as.vector(t(dd[,10:29])) #first 10 years
+    y = as.vector(t(dd[,70:length(dd)])) #last 10 years
     
     P_1 = ecdf(x)
     P_2 = ecdf(y)# P is a function giving the empirical CDF of X
     
-    plot(P_1, col = 4)
-    lines(P_2, col = 2)
+    # plot(P_1, col = 4)
+    # lines(P_2, col = 2)
     
     overlap <- function(x, y) {
       F.x <- ecdf(x); F.y <- ecdf(y)
@@ -480,8 +555,29 @@ for (j in 1:length(season)){
     
     xy = rbind(x,y)
     
-    png(paste0("kstest_", i, "_", season[[j]], ".png"), 
-        units = "px", res = 100, width=800,height=300) #res = 500, width=6000,height=6000
+    stat = tapply(xy$value, xy$period, summary)
+    
+    prob1 = stat[1]$First_10_years[4]
+    prob2 = stat[2]$Last_10_years[4]
+    
+    jpeg(paste0("/Users/Kisei/Desktop/ks_area_legend.jpg"), res = 500, height = 3, width = 2, units = "in")
+    
+    legend = ggplot2.histogram(data=xy, xName='value',
+                               groupName='period',
+                               legendPosition = "right",
+                               alpha = 0.5,
+                               ylim = c(0,10),
+                               xlim = c(0,1),
+                               addDensity=TRUE,
+                               addMeanLine=TRUE,  meanLineSize=1.5)
+    
+    legend = cowplot::get_legend(legend)
+    grid.newpage()
+    grid.draw(legend)
+    dev.off()
+    
+    png(paste0("/Users/Kisei/Desktop/Lobster_Area_", i, "_", season[[j]], ".png"), 
+        units = "px", res = 200, width=800,height=400) #res = 500, width=6000,height=6000
     
     p = ggplot2.histogram(data=xy, xName='value',
                           groupName='period',
@@ -491,8 +587,10 @@ for (j in 1:length(season)){
                           xlim = c(0,1),
                           addDensity=TRUE,
                           addMeanLine=TRUE,  meanLineSize=1.5) +
-      xlab("Presence Probability") +
-      theme_classic() + ggtitle(paste0(Area, "_", season[[j]])) 
+      xlab("Habitat Suitability") +
+      theme_classic() + ggtitle(paste0(Area, "_", season[[j]]))  + 
+      theme(legend.position="none")  +
+      geom_text(x =0.8, y = 9, label = paste0("change = ", round(prob2-prob1, 2)), col = 1, size = 4)
     
     print(p)
     
