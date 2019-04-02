@@ -9,6 +9,8 @@ library(grid)
 library(gridExtra)
 library(rnaturalearth)
 library(rgeos)
+library(ggpubr)
+library(Rmisc)
 
 setwd("/Users/Kisei/Google Drive/R/Biomod/scallop")
 
@@ -68,6 +70,8 @@ get_trend = function(time_step){
   
   POS = read.csv(paste0("Biomod_1_80_", time_step, ".csv"))
   
+  POS[,c(3:82)] = POS[,c(3:82)]*0.001
+  
   POS = POS[,c(2,1,3:82)]
   
   names(POS)[1] = "Y"
@@ -109,14 +113,14 @@ annual = get_trend("annual")
 
 annual$Annual = annual$var1.pred
 
-max = max(abs(annual$Annual), na.rm = T)*120
+max = max(abs(annual$Annual), na.rm = T)*12000
 min = max*-1
 
 png("/Users/Kisei/Desktop/Scallop_Habitat_Change_Season.png", width = 2000, height = 2200, res = 500)
 spplot(annual, 
        main=list(label="Sea scallop",cex=1.5),
        sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
-       at = (min:max)/100, #for slope
+       at = (min:max)/10000, #for slope
        col.regions = col,
        zcol = c("Annual"),
        scales=list(draw=T),
@@ -128,6 +132,8 @@ dev.off()
 season = list("annual")
 
 for (j in 1:length(season)){
+  
+  # j = 1
   
   df <- read_csv("Biomod_1_80_annual.csv") #lobster fall biomod output
   
@@ -359,40 +365,40 @@ for (j in 1:length(season)){
   
   # grid.arrange(p1, p2, nrow = 2)
   
-  png(paste0("/Users/Kisei/Desktop/Scallop_D_P0.05_", season[[j]], ".png"), 
-      units = "in", res = 500, width = 8, height = 10) #res = 500, width=6000,height=6000
-  grid.arrange(p1, p2, nrow = 1)
-  dev.off()
-  
-  png(paste0("/Users/Kisei/Desktop/Scallop_D_", season[[j]], ".png"), 
-      units = "in", res = 500, width = 5, height = 16) #res = 500, width=6000,height=6000
-  p1
-  dev.off()
-  
-  png(paste0("/Users/Kisei/Desktop/Scallop_P_", season[[j]], ".png"), 
-      units = "in", res = 500, width = 5, height = 16) #res = 500, width=6000,height=6000
-  p2
-  dev.off()
-  
-  jpeg(paste0("/Users/Kisei/Desktop/D-statisticlegend.jpg"), res = 500, height = 12, width = 1, units = "in")
-  legend =  p1
-  legend = cowplot::get_legend(legend)
-  grid::grid.newpage()
-  grid::grid.draw(legend)
-  dev.off()
-
-  jpeg(paste0("/Users/Kisei/Desktop/p-value_legend.jpg"), res = 500, height = 12, width = 1, units = "in")
-  legend =  p2
-  legend = cowplot::get_legend(legend)
-  grid::grid.newpage()
-  grid::grid.draw(legend)
-  dev.off()
+  # png(paste0("/Users/Kisei/Desktop/Scallop_D_P0.05_", season[[j]], ".png"), 
+  #     units = "in", res = 500, width = 8, height = 10) #res = 500, width=6000,height=6000
+  # grid.arrange(p1, p2, nrow = 1)
+  # dev.off()
+  # 
+  # png(paste0("/Users/Kisei/Desktop/Scallop_D_", season[[j]], ".png"), 
+  #     units = "in", res = 500, width = 5, height = 16) #res = 500, width=6000,height=6000
+  # p1
+  # dev.off()
+  # 
+  # png(paste0("/Users/Kisei/Desktop/Scallop_P_", season[[j]], ".png"), 
+  #     units = "in", res = 500, width = 5, height = 16) #res = 500, width=6000,height=6000
+  # p2
+  # dev.off()
+  # 
+  # jpeg(paste0("/Users/Kisei/Desktop/D-statisticlegend.jpg"), res = 500, height = 12, width = 1, units = "in")
+  # legend =  p1
+  # legend = cowplot::get_legend(legend)
+  # grid::grid.newpage()
+  # grid::grid.draw(legend)
+  # dev.off()
+  # 
+  # jpeg(paste0("/Users/Kisei/Desktop/p-value_legend.jpg"), res = 500, height = 12, width = 1, units = "in")
+  # legend =  p2
+  # legend = cowplot::get_legend(legend)
+  # grid::grid.newpage()
+  # grid::grid.draw(legend)
+  # dev.off()
   
   d1 = summarySE(ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),], measurevar = "D", groupvars = c("Area"))
   d2 = summarySE(ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),], measurevar = "P_0.05", groupvars = c("Area"), na.rm = T)
   
-  write.csv(d1, paste0("/Users/Kisei/Google Drive/Research/Manuscripts/Biomod/", paste0("Sea_scallop_", season[j]), "_D.csv"))
-  write.csv(d2, paste0("/Users/Kisei/Google Drive/Research/Manuscripts/Biomod/", paste0("Sea_scallop_", season[j]), "_P.csv"))
+  # write.csv(d1, paste0("/Users/Kisei/Google Drive/Research/Manuscripts/Biomod/", paste0("Sea_scallop_", season[j]), "_D.csv"))
+  # write.csv(d2, paste0("/Users/Kisei/Google Drive/Research/Manuscripts/Biomod/", paste0("Sea_scallop_", season[j]), "_P.csv"))
 
   sp_map = function(x, y, z, df){
     
@@ -424,51 +430,53 @@ for (j in 1:length(season)){
   D$KS_Less = ks_lt$var1.pred
   D$KS_Greater = ks_gt$var1.pred
   
-  jpeg(paste0("Two-Sample_KS_test_", test, "_", season[[j]], ".jpg"), res = 500, height = 3, width = 5, units = "in")
-  spplot(D, 
-         sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
-         at = (0:1000)/1000,
-         col.regions = rev(pals::parula(1000)),
-         zcol = c("Two_Sample_KS_Pval"),
-         scales=list(draw=T),
-         colorkey = T)
-  dev.off()
-  
-  jpeg(paste0("Two-Sample_KS_test_P0.05_", test, "_", season[[j]], ".jpg"), res = 500, height = 3, width = 5, units = "in")
-  spplot(D, 
-         sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
-         at = (0:50)/1000,
-         col.regions = rev(pals::parula(1000)),
-         zcol = c("P_0.05"),
-         scales=list(draw=T),
-         colorkey = T)
-  dev.off()
-  
-  jpeg(paste0("Two-sample_KS_Tests_D_", test, "_", season[[j]], ".jpg"), res = 500, height = 3, width = 5, units = "in")
-  spplot(D, 
-         sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
-         at = (0:100)/100,
-         col.regions = pals::parula(length(na.omit(D$var1.pred))),
-         zcol = c("D"),
-         scales=list(draw=T),
-         colorkey = T)
-  dev.off()
-  
-  jpeg(paste0("/Users/Kisei/Desktop/Scallop_Two-sample_KS_Tests_P0.05_D_", test, "_", season[[j]], ".jpg"), res = 500, height = 10, width = 7, units = "in")
-  spplot(D, 
-         main=list(label="P. magellanicus",cex=1.5),
-         sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
-         at = (0:100)/100,
-         col.regions = rev(matlab.like(1000)),
-         zcol = c("D", "P_0.05"),
-         scales=list(draw=T),
-         colorkey = T)
-  dev.off()
+  # jpeg(paste0("Two-Sample_KS_test_", test, "_", season[[j]], ".jpg"), res = 500, height = 3, width = 5, units = "in")
+  # spplot(D, 
+  #        sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
+  #        at = (0:1000)/1000,
+  #        col.regions = rev(pals::parula(1000)),
+  #        zcol = c("Two_Sample_KS_Pval"),
+  #        scales=list(draw=T),
+  #        colorkey = T)
+  # dev.off()
+  # 
+  # jpeg(paste0("Two-Sample_KS_test_P0.05_", test, "_", season[[j]], ".jpg"), res = 500, height = 3, width = 5, units = "in")
+  # spplot(D, 
+  #        sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
+  #        at = (0:50)/1000,
+  #        col.regions = rev(pals::parula(1000)),
+  #        zcol = c("P_0.05"),
+  #        scales=list(draw=T),
+  #        colorkey = T)
+  # dev.off()
+  # 
+  # jpeg(paste0("Two-sample_KS_Tests_D_", test, "_", season[[j]], ".jpg"), res = 500, height = 3, width = 5, units = "in")
+  # spplot(D, 
+  #        sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
+  #        at = (0:100)/100,
+  #        col.regions = pals::parula(length(na.omit(D$var1.pred))),
+  #        zcol = c("D"),
+  #        scales=list(draw=T),
+  #        colorkey = T)
+  # dev.off()
+  # 
+  # jpeg(paste0("/Users/Kisei/Desktop/Scallop_Two-sample_KS_Tests_P0.05_D_", test, "_", season[[j]], ".jpg"), res = 500, height = 10, width = 7, units = "in")
+  # spplot(D, 
+  #        main=list(label="P. magellanicus",cex=1.5),
+  #        sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
+  #        at = (0:100)/100,
+  #        col.regions = rev(matlab.like(1000)),
+  #        zcol = c("D", "P_0.05"),
+  #        scales=list(draw=T),
+  #        colorkey = T)
+  # dev.off()
   
   #summarize TS test by mgmt areas
   
   df = cbind(ks, df*0.001)
+  # df = cbind(ks, df*0.001)
   
+  prob = NULL
   for (i in 1:4) {
     
     if(i == 1) {
@@ -490,25 +498,8 @@ for (j in 1:length(season)){
       Area = "SNE Neashore"
     }
     
-    x = as.vector(t(dd[,10:29])) #first 10 years (10:19), or first 20 years (10:29)
-    y = as.vector(t(dd[,70:length(dd)])) #first 10 years (80:89), or first 20 years (70:89)
-    
-    P_1 = ecdf(x)
-    P_2 = ecdf(y)# P is a function giving the empirical CDF of X
-    
-    # plot(P_1, col = 4)
-    # lines(P_2, col = 2)
-    
-    overlap <- function(x, y) {
-      F.x <- ecdf(x); F.y <- ecdf(y)
-      z <- uniroot(function(z) F.x(z) + F.y(z) - 1, interval<-c(min(c(x,y)), max(c(x,y))))
-      return(list(Root=z, F.x=F.x, F.y=F.y))
-    }
-    
-    d = overlap(x,y)
-    
-    P_1(0.5)
-    P_2(0.5)
+    x = as.vector(t(dd[,10:29])) #first 10 years
+    y = as.vector(t(dd[,70:length(dd)])) #last 10 years
     
     #make cdf comparison plots
     x = data.frame(x)
@@ -524,46 +515,116 @@ for (j in 1:length(season)){
     
     stat = tapply(xy$value, xy$period, summary)
     
-    prob1 = stat[1]$First_10_years[4]
-    prob2 = stat[2]$Last_10_years[4]
+    prob1 = stat[1]$First_10_years[3]
+    prob2 = stat[2]$Last_10_years[3]
     
-    jpeg(paste0("/Users/Kisei/Desktop/ks_area_legend.jpg"), res = 500, height = 3, width = 2, units = "in")
+    prob_area = as.data.frame(cbind(prob1, prob2))
+    prob_area$Area = Area
+    prob_area$change = round(prob_area$prob2 - prob_area$prob1, 2)
     
-    legend = ggplot2.histogram(data=xy, xName='value',
-                               groupName='period',
-                               legendPosition = "right",
-                               alpha = 0.5,
-                               ylim = c(0,10),
-                               xlim = c(0,1),
-                               addDensity=TRUE, 
-                               addMeanLine=TRUE,  meanLineSize=1.5)
-    
-    legend = cowplot::get_legend(legend)
-    grid.newpage()
-    grid.draw(legend)
-    dev.off()
-    
-    png(paste0("/Users/Kisei/Desktop/Scallop_Area_", i, "_", season[[j]], ".png"), 
-        units = "px", res = 200, width=800,height=400) #res = 500, width=6000,height=6000
-    
-    p = ggplot2.histogram(data=xy, xName='value',
-                          groupName='period',
-                          legendPosition = "top",
-                          alpha = 0.5,
-                          ylim = c(0,10),
-                          xlim = c(0,1),
-                          addDensity=TRUE,
-                          addMeanLine=TRUE,  meanLineSize=1.5) +
-      xlab("Habitat Suitability") +
-      theme_pubr() + ggtitle(paste0(Area, "_", season[[j]])) + 
-      theme(legend.position="none")+
-      geom_text(x =0.8, y = 9, label = paste0("change = ", round(prob2-prob1, 2)), col = 1, size = 4)
-    
-    print(p)
-    
-    dev.off()
+    prob = rbind(prob, prob_area)
     
   }
+  
+  dd = df[which(df$GOMGBK_SNE == "GOM_GBK"),]
+  Area = "GOM_GB"
+  x = as.vector(t(dd[,10:29])) #first 10 years
+  y = as.vector(t(dd[,70:length(dd)])) #last 10 years
+  x = data.frame(x)
+  y = data.frame(y)
+  x$Period = "First_10_years"
+  y$Period = "Last_10_years"
+  colnames(x) = c("value", "period")
+  colnames(y) = c("value", "period")
+  xy_1 = rbind(x,y)
+  xy_1$Area = Area
+  
+  dd = df[which(df$GOMGBK_SNE == "SNE"),]
+  Area = "SNE"
+  x = as.vector(t(dd[,10:29])) #first 10 years
+  y = as.vector(t(dd[,70:length(dd)])) #last 10 years
+  x = data.frame(x)
+  y = data.frame(y)
+  x$Period = "First_10_years"
+  y$Period = "Last_10_years"
+  colnames(x) = c("value", "period")
+  colnames(y) = c("value", "period")
+  xy_2 = rbind(x,y)
+  xy_2$Area = Area
+  
+  dd = df[which(df$Nearshore_Area == "GOM_GBK Neashore Management Area"),]
+  Area = "GOM_GB Neashore"
+  x = as.vector(t(dd[,10:29])) #first 10 years
+  y = as.vector(t(dd[,70:length(dd)])) #last 10 years
+  x = data.frame(x)
+  y = data.frame(y)
+  x$Period = "First_10_years"
+  y$Period = "Last_10_years"
+  colnames(x) = c("value", "period")
+  colnames(y) = c("value", "period")
+  xy_3 = rbind(x,y)
+  xy_3$Area = Area
+  
+  dd = df[which(df$Nearshore_Area == "SNE Neashore Management Area"),]
+  Area = "SNE Neashore"
+  x = as.vector(t(dd[,10:29])) #first 10 years
+  y = as.vector(t(dd[,70:length(dd)])) #last 10 years
+  x = data.frame(x)
+  y = data.frame(y)
+  x$Period = "First_10_years"
+  y$Period = "Last_10_years"
+  colnames(x) = c("value", "period")
+  colnames(y) = c("value", "period")
+  xy_4 = rbind(x,y)
+  xy_4$Area = Area
+  
+  xy = rbind(xy_1, xy_2, xy_3, xy_4)
+  
+  library(dplyr)
+  library(plyr)
+  mu = xy %>%
+    group_by(period, Area) %>% 
+    summarise(median = median(value))
+  
+  # pdf(paste0("/Users/Kisei/Desktop/Scallop_Area_", season[[j]], ".pdf"), width = 3, height = 6) 
+  png(paste0("/Users/Kisei/Desktop/Scallop_Area_", season[[j]], ".png"), width = 3, height = 6, res = 500, units = "in") 
+  
+  p = ggplot(xy, aes(x = value, fill = period, color = period)) +
+    # geom_histogram(position="identity", alpha = 0.5, bins = 50) +
+    geom_histogram(aes(y=..count..), position="identity", alpha = 0.5, bins = 50) +
+    # geom_histogram(aes(y=..count../sum(..count..)), position="identity", alpha = 0.5, bins = 50) +
+    # geom_histogram(aes(y=..ncount..), position="identity", alpha = 0.5, bins = 50) +
+    # geom_density(alpha = 0.3) +
+    facet_wrap(~Area, scales = "free_y", ncol = 1) +
+    geom_vline(data=mu, aes(xintercept=median, color=period),
+               linetype="dashed",
+               size = 0.5) +
+    xlab("Habitat Suitability") +
+    ylab(" ") +
+    theme_pubr(I(10)) + ggtitle(paste0("Scallop_", toupper(season[[j]])))  + 
+    theme(legend.position="none") + 
+    # geom_label(data = prob, aes(label= paste0("change=", change)), 
+    #            x = Inf, y = Inf, hjust = 1, vjust = 1, label.size = NA,
+    #            inherit.aes = FALSE)
+    geom_label(data = prob, aes(label= paste0("First_10_yrs=", round(prob1, 2), "\nLast_10_yrs=", round(prob2, 2))),
+               x = Inf, y = Inf, hjust = 1, vjust = 1, label.size = NA, size = 3, alpha = 0.5,
+               inherit.aes = FALSE)
+  print(p)
+  dev.off()
+  
+  # pdf(paste0("/Users/Kisei/Desktop/ks_area_legend.pdf"), height = 1, width = 3)
+  # legend = ggplot(xy, aes(x = value, fill = period, color = period)) +
+  #   geom_histogram(aes(y=..count../sum(..count..)), position="identity", alpha = 0.3, bins = 50) +
+  #   theme(legend.position="bottom") + 
+  #   scale_fill_discrete(name = "") + 
+  #   scale_color_discrete(name = "") + 
+  #   guides(fill = guide_legend(override.aes = list(linetype = 0, alpha = 1)),
+  #          color = guide_legend(override.aes = list(linetype = 0)))
+  # 
+  # legend = cowplot::get_legend(legend)
+  # grid.newpage()
+  # grid.draw(legend)
+  # dev.off()
+  
 }
 
-# The significance of difference between two REC curves can be assessed by examining the maximum deviation between the two curves across all values of E. This corresponds to the Kolmogorov-Smirnov (KS) two-sample test (DeGroot, 1986) for judging the hypothesis that the error e generated by two models f and g follows the same distribution. The KS-test requires no assumptions about the underlying CDF of z. 
