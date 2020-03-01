@@ -638,6 +638,8 @@ for (j in 1:length(season)){
                inherit.aes = FALSE)
   print(p)
   dev.off()
+  
+  save(xy, file = paste0("/Users/Kisei/Desktop/Lobster_Area_", season[[j]], ".RData"))
 
 }
 

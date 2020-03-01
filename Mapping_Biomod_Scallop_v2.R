@@ -612,6 +612,9 @@ for (j in 1:length(season)){
   print(p)
   dev.off()
   
+  save(xy, file = paste0("/Users/Kisei/Desktop/Scallop_Area_", season[[j]], ".RData"))
+  
+  
   # pdf(paste0("/Users/Kisei/Desktop/ks_area_legend.pdf"), height = 1, width = 3)
   # legend = ggplot(xy, aes(x = value, fill = period, color = period)) +
   #   geom_histogram(aes(y=..count../sum(..count..)), position="identity", alpha = 0.3, bins = 50) +
