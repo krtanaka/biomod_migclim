@@ -210,6 +210,8 @@ for (j in 1:length(season)){
   
   p
   
+  save(data, file = paste0("/Users/Kisei/Desktop/lobster_change_", season[[j]], ".RData"))
+  
   png(paste0("/Users/Kisei/Desktop/lobster_change_", season[j], ".png"), 
       res = 500, height = 3, width = 8, units = "in")
   print(p)
