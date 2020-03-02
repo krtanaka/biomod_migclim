@@ -613,6 +613,9 @@ for (j in 1:length(season)){
   dev.off()
   
   save(xy, file = paste0("/Users/Kisei/Desktop/Scallop_Area_", season[[j]], ".RData"))
+  save(mu, file = paste0("/Users/Kisei/Desktop/Scallop_Area_Mu_", season[[j]], ".RData"))
+  save(prob, file = paste0("/Users/Kisei/Desktop/Scallop_Area_Prob_", season[[j]], ".RData"))
+  
   
   
   # pdf(paste0("/Users/Kisei/Desktop/ks_area_legend.pdf"), height = 1, width = 3)

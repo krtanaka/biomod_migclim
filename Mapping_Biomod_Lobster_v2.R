@@ -640,6 +640,8 @@ for (j in 1:length(season)){
   dev.off()
   
   save(xy, file = paste0("/Users/Kisei/Desktop/Lobster_Area_", season[[j]], ".RData"))
+  save(mu, file = paste0("/Users/Kisei/Desktop/Lobster_Area_Mu_", season[[j]], ".RData"))
+  save(prob, file = paste0("/Users/Kisei/Desktop/Lobster_Area_Prob_", season[[j]], ".RData"))
 
 }
 
