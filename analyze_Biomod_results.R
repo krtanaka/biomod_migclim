@@ -22,7 +22,7 @@ library(ggpubr)
 
 dir = paste0("/Users/", Sys.info()[7], "/")
 
-sp = c("lobster", "scallop")[2]
+sp = c("lobster", "scallop")[1]
 
 setwd(paste0(dir, "/Desktop/", sp)) #with slope
 setwd(paste0(dir, "/biomod_migclim/", sp)) #without slope
@@ -278,11 +278,12 @@ avg@data@values = (avg@data@values - avg@data@min)/(avg@data@max - avg@data@min)
 # cor(df$obs, df$pred)
 
 
-# jpeg(paste0(dir, "Desktop/Biomod_Parsimonious_Model_Prediction", sp, ".jpg"), res = 500, height = 5, width = 10, units = "in")
+jpeg(paste0(dir, "Desktop/Biomod_Parsimonious_Model_Prediction", sp, ".jpg"), res = 500, height = 5, width = 5, units = "in")
 
 par(mfrow = c(1,2), mar = c(3,3,3,5))
 plot(avg, zlim = c(0,1), col = matlab.like(100), 
-     main = ifelse(sp == "lobster", "American lobster", "Sea scallop"),
+     # main = ifelse(sp == "lobster", "American lobster", "Sea scallop"),
+     # xlim = c(-74, -71.5), ylim = c(40.75,41.35),
      xaxt='n', yaxt='n', 
      legend = F)
 map("world", type = "b", col = "gray", add = T, fill = T, resolution = 0, border=FALSE)
@@ -302,7 +303,7 @@ degAxis(1, cex.axis = 1)
 degAxis(2, cex.axis = 1, las = 2)
 legend("bottomright", "Standard deviation", bty = "n", cex = 1.4)
 
-# dev.off()
+dev.off()
 
 #save list of final SDMs and weights.
 # if (op == "default") {
