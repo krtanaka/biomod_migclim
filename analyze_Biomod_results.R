@@ -22,7 +22,7 @@ library(ggpubr)
 
 dir = paste0("/Users/", Sys.info()[7], "/")
 
-sp = c("lobster", "scallop")[1]
+sp = c("lobster", "scallop")[2]
 
 setwd(paste0(dir, "/Desktop/", sp)) #with slope
 setwd(paste0(dir, "/biomod_migclim/", sp)) #without slope
@@ -44,8 +44,13 @@ if (op == "default") {
 tss = myBiomodModelEval["TSS","Testing.data",,,]; tss = as.data.frame(tss)
 roc = myBiomodModelEval["ROC","Testing.data",,,]; roc = as.data.frame(roc)
 
-# roc$mean = apply(roc, 1, mean)
-# tss$mean = apply(tss, 1, mean)
+std <- function(x) sd(x)/sqrt(length(x))
+
+roc$mean = apply(roc, 1, mean)
+tss$mean = apply(tss, 1, mean)
+
+roc$se = apply(roc, 1, std)
+tss$se = apply(tss, 1, std)
 
 get_variables_importance(myBiomodModelOut)
 
@@ -62,10 +67,10 @@ models = c('GLM',
            'MAXENT.Phillips')
 
 tss = cbind(models, tss)
-colnames(tss) = c("SDM", "TSS_RUN1","TSS_RUN2","TSS_RUN3")
+colnames(tss) = c("SDM", "TSS_RUN1","TSS_RUN2","TSS_RUN3", "TSS_Mean", "TSS_SE")
 roc = cbind(models, roc)
-colnames(roc) = c("SDM", "ROC_RUN1","ROC_RUN2","ROC_RUN3")
-tss_roc = merge(tss, roc)
+colnames(roc) = c("SDM", "ROC_RUN1","ROC_RUN2","ROC_RUN3", "ROC_Mean", "ROC_SE")
+tss_roc = merge(tss, roc, by = "SDM")
 tss_roc = subset(tss_roc, SDM!="MAXENT.Tsuruoka")
 tss_roc$SDM = gsub("MAXENT.Phillips", "MAXENT", tss_roc$SDM)
 tss_roc
@@ -99,6 +104,31 @@ eval = merge(d1[c("model","TSS","se")],d2[c("model","ROC","se")], by = "model")
 names(eval) = c("Model", "TSS", "SE2", "ROC", "SE1")
 eval = subset(eval, Model!="MAXENT2")
 eval$Model = gsub("MAXENT1", "MAXENT", eval$Model)
+
+eval_full = eval
+
+d1 = summarySE(subset(evals, TSS > 0.5 & ROC > 0.8), measurevar = "TSS", groupvars = c("model"))
+d2 = summarySE(subset(evals, TSS > 0.5 & ROC > 0.8), measurevar = "ROC", groupvars = c("model"))
+
+eval = merge(d1[c("model","TSS","se")],d2[c("model","ROC","se")], by = "model")
+names(eval) = c("Model", "TSS", "SE2", "ROC", "SE1")
+eval = subset(eval, Model!="MAXENT2")
+eval$Model = gsub("MAXENT1", "MAXENT", eval$Model)
+
+eval_selected = eval
+
+ensemble = t(as.data.frame(colMeans(eval_selected[2:5])))
+ensemble$Model = "Ensemble"
+ensemble = as.data.frame(ensemble)
+ensemble = ensemble[,c(5, 1:4)]
+colnames(ensemble) = c('Model', 'TSS', 'SE2', 'ROC', 'SE1')
+
+eval = rbind(eval_full, ensemble)
+eval$p_tss = ((ensemble$TSS - eval$TSS)/eval$TSS)*100
+eval$p_roc = ((ensemble$ROC - eval$ROC)/eval$ROC)*100
+
+write_csv(eval, paste0(dir, "Desktop/", sp, "_ROC_TSS.csv"))
+
 
 # jpeg(paste0("/Users/Kisei/Desktop/model_evaluation_legend.jpg"), res = 500, height = 2.5, width = 1, units = "in")
 # legend = ggplot(data = eval,aes(x = ROC, y = TSS, colour = Model, shape = Model)) +
@@ -161,6 +191,8 @@ dev.off()
 #remove SDMs with TSS < 0.5
 evals = subset(evals, TSS > 0.5)
 evals = subset(evals, ROC > 0.8)
+
+evals %>% group_by(model) %>% summarise(mean)
 
 # weighting all models by TSS, ROC, and combined weight
 weight = evals[c(1:nrow(evals)),5] #4 is ROC, 5 is combo
