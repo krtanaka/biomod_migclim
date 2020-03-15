@@ -20,7 +20,7 @@ library(ggpubr)
 
 dir = paste0("/Users/", Sys.info()[7], "/")
 
-sp = c("lobster", "scallop")[1]
+sp = c("lobster", "scallop")[2]
 op = c("tuned", "default")[1]
 
 # cl = makeCluster(detectCores()-1); registerDoParallel(cl)
@@ -51,7 +51,7 @@ if (sp == "lobster") {
   # plot(myExpl$var1.pred.1, main = "Bottom Temp (deg C)")
   # map("world", type = "b", col = "gray", add = T, fill = T, resolution = 0, border=FALSE); box()
   # plot(myExpl$var1.pred.2, main = "Bottom Salt (ppt)")
-  # map("usa", type = "b", col = "gray", add = T, fill = T, resolution = 0, border=FALSE); box()
+  # map("world", type = "b", col = "gray", add = T, fill = T, resolution = 0, border=FALSE); box()
   # plot(myExpl$var1.pred.3, main = "Depth (m)")
   # map("world", type = "b", col = "gray", add = T, fill = T, resolution = 0, border=FALSE); box()
   
