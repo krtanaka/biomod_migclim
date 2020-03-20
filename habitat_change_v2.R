@@ -1,10 +1,24 @@
 library(sp)
+<<<<<<< HEAD
 
 rm(list = ls())
 
 scallop = read.csv("/Users/ktanaka/Google Drive/R/Biomod/scallop/Biomod_1_80_annual.csv")
 Lob_fall = read.csv("/Users/ktanaka/Google Drive/R/Biomod/lobster/Biomod_1_80_fall.csv")
 Lob_spring = read.csv("/Users/ktanaka/Google Drive/R/Biomod/lobster/Biomod_1_80_spring.csv")
+=======
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(colorRamps)
+library(ggalluvial)
+
+rm(list = ls())
+
+scallop = read.csv("/Users/kisei/Google Drive/R/Biomod/scallop/Biomod_1_80_annual.csv")
+Lob_fall = read.csv("/Users/kisei/Google Drive/R/Biomod/lobster/Biomod_1_80_fall.csv")
+Lob_spring = read.csv("/Users/kisei/Google Drive/R/Biomod/lobster/Biomod_1_80_spring.csv")
+>>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
 
 ks = scallop[,c(1,2)]
 df_ensemble = scallop[3:82]
@@ -13,7 +27,11 @@ df_ensemble = scallop[3:82]
 colnames(ks)[1:2] = c("x","y")
 latlon = ks[,c(1,2)]; plot(latlon)
 coordinates(latlon)=~x+y
+<<<<<<< HEAD
 area = rgdal::readOGR("/Users/ktanaka/Google Drive/Research/GIS/NOAA_Statistical_Area/Statistical_Areas.shp")
+=======
+area = rgdal::readOGR("/Users/kisei/Google Drive/Research/GIS/NOAA_Statistical_Area/Statistical_Areas.shp")
+>>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
 area = area[which(area$Id %in% c(464:465, 511:515, 521:526, 537:539, 541:543, 561:562, 611:616, 621:626)),]
 CRS.new = CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")  #EPSG:102003
 proj4string(latlon) <- CRS.new 
@@ -26,7 +44,11 @@ ks$GOMGBK_SNE  = ifelse(ks$GOMGBK_SNE %in% c(464:465, 511:515, 521:526, 561:562)
 # qplot(ks$x, ks$y, colour = ks$GOMGBK_SNE)
 
 #add nearshore areas
+<<<<<<< HEAD
 area = rgdal::readOGR("/Users/ktanaka/Google Drive/Research/GIS/Lobster_Management_Areas/Lobster_Management_Areas.shp")
+=======
+area = rgdal::readOGR("/Users/kisei/Google Drive/Research/GIS/Lobster_Management_Areas/Lobster_Management_Areas.shp")
+>>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
 area = area[which(area$AREANAME %in% c("EEZ Nearshore Management Area 1",
                                        "EEZ Nearshore Management Area 2",
                                        "EEZ Nearshore Management Area 4",
@@ -145,7 +167,11 @@ df = rbind(df1, df2)
 #   group_by(sp) %>%
 #   mutate(a = freq/sum(freq))
 
+<<<<<<< HEAD
 png('/Users/ktanaka/Desktop/Habitat_quantiles.png', width = 10, height = 15,units = "in", res = 300)
+=======
+png('/Users/kisei/Desktop/Habitat_quantiles.png', width = 10, height = 10, units = "in", res = 500)
+>>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
 
 ggplot(df,
        aes(x = survey, stratum = response, alluvium = subject,
@@ -154,7 +180,13 @@ ggplot(df,
   geom_stratum(alpha = 0) +
   geom_text(stat = "stratum", size = 4) + 
   theme_pubr(I(15)) + 
+<<<<<<< HEAD
   facet_wrap(~sp + area, scales = "free_y", dir = "v", ncol = 3) +
+=======
+  # facet_wrap(~sp + area, scales = "free_y", dir = "v", ncol = 3) +
+  facet_grid(area ~ sp, scales = "free") +
+  
+>>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
   scale_y_continuous("Freqency")+
   scale_x_discrete("")+
   scale_fill_manual(values = rev(matlab.like(4)), "Habitat Suitability Category") + 

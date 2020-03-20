@@ -2,7 +2,11 @@ dir = "/Users/Kisei/"
 library(ggplot2)
 
 # setwd(paste0(dir, "/Google Drive/R/Biomod/lobster"))
+<<<<<<< HEAD
 setwd("/Users/ktanaka//Desktop/lobster/")
+=======
+setwd("/Users/kisei//Desktop/scallop"))
+>>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
 
 load("final_sdms.RData")
 
@@ -185,6 +189,7 @@ print(p)
 dev.off()
 
 
+<<<<<<< HEAD
 
 # steepness --------------------------------------------------------------------
 rows = c(22:25)
@@ -225,3 +230,5 @@ print(p)
 dev.off()
 
 
+=======
+>>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e

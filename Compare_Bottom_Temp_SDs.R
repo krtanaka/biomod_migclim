@@ -1,9 +1,9 @@
-d = data.table::fread(file = "~/Desktop/Bottom_Temperature.csv")
+d = data.table::fread(file = "/Users/Kisei/Desktop/Bottom_Temperature.csv")
 
 names(d)
 latlon = d[,c(1:2)]; plot(latlon)
 coordinates(latlon)=~Var1+Var2
-lme<-rgdal::readOGR("~/Google Drive/Research/GIS/NOAA_Statistical_Area/Statistical_Areas.shp")
+lme<-rgdal::readOGR("/Users/Kisei/Google Drive/Research/GIS/NOAA_Statistical_Area/Statistical_Areas.shp")
 CRS.new<-CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")  #EPSG:102003
 proj4string(latlon) <- CRS.new 
 proj4string(lme) <- CRS.new
@@ -27,9 +27,7 @@ cm_month_sd = rbind(cm_month_sd, sd)
 
 cm_month_sd = as.data.frame(cbind(c(1:12), cm_month_sd))
 
-
-
-load("~/biomod_migclim/lobster/lobster_survey_data_spring_fall_combined_1984-2016.RData") #load survey data
+load("/Users/Kisei/biomod_migclim/lobster/lobster_survey_data_spring_fall_combined_1984-2016.RData") #load survey data
 d = lobster
 
 d = d[,c("Month", "Obs_Bottom_Temperature")]
@@ -41,8 +39,7 @@ colnames(cm_month_sd) = c("Month", "Modeled Bottom Temp SD")
 
 d = merge(d, cm_month_sd)
 
-getwd()
-
-write_csv(d, "sd_comparison.csv")
+setwd("C:/Users/Kisei/Desktop")
+readr::write_csv(d, "sd_comparison.csv")
 
 
