@@ -157,9 +157,58 @@ colnames(d)[1] = "x"; colnames(d)[3] = "y"
 load("/Users/Kisei/Google Drive/Research/NW_Clim/Data/cm2.6_w_NWA_GIS_bt.RData")
 load("/Users/Kisei/Google Drive/Research/NW_Clim/Data/cm2.6_w_NWA_GIS_bs.RData")
 
+bt$Property = "Bottom Temperature Anomalies (deg C)"
+bs$Property = "Bottom Salinity Anomalies (ppt)"
+
+d = rbind(bt, bs)
+
+d$Property = factor(d$Property, levels=c("Bottom Temperature Anomalies (deg C)","Bottom Salinity Anomalies (ppt)" ))
+
+b_df <- ddply(d, .(Management_Area, Property), summarise, slope=round(summary(lm(scale(y)~x))$coefficients[2], 3))
+p_df <- ddply(d, .(Management_Area, Property), summarise, p=summary(lm(scale(y)~x))$coefficients[8])
+p_df$p = ifelse(p_df$p < 0.001, "<0.001", paste0("=", p_df$p))
+summary = merge(b_df, p_df)
+summary
+
+p = ggplot(d, aes(x, y, color = Management_Area)) +
+  geom_text(data = summary,
+            aes(label = paste0("\n β=", slope, "\n p=", p)),
+            x = -Inf, y = -Inf,
+            hjust = -0.1,
+            vjust = -0.2,
+            size = 3) +
+  # geom_point(alpha = 0.5) +
+  geom_line(alpha = 0.5) +
+  geom_smooth(method = "lm", se = F, size = 0.5) +
+  facet_grid(Property~Management_Area, scales = "free") +
+  theme_pubr(base_size = I(10)) + 
+  theme(legend.position="none", axis.text.x = element_text(angle = 90, vjust = 0.7)) + 
+  labs(x = "Model Month", y = "")
+
+png("/Users/Kisei/Desktop/bt_bs.png", res = 500, height = 6, width = 7, units = "in")
+p
+dev.off()
+
+formula = y ~ x
+
+ggplot(d, aes(x, y)) +
+  geom_point(aes(color = Management_Area), size = 1, alpha = 0.1) +
+  facet_grid(Property~Management_Area, scales = "free") + 
+  theme_pubr(base_size = I(10)) +
+  theme(legend.position="none") +
+  stat_smooth( aes(color = Management_Area, fill = Management_Area), method = "lm") +
+  # stat_cor(aes(color = Management_Area), label.y = 4.6) +
+  stat_cor(aes(color = Management_Area, label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), label.y = c(2, 5)) + 
+  stat_poly_eq(
+    aes(color = Management_Area, label = ..eq.label..),
+    formula = formula, label.y = c(1, 4), coef.digits = 2, parse = TRUE) + 
+  labs(x = "Model Month")
+
+
 d = bt
 
 formula = y ~ x
+
 
 p1 <- ggplot(d, aes(x, y)) +
   geom_point(aes(color = Management_Area), size = 1, alpha = 0.2) +
@@ -177,6 +226,7 @@ p1 <- ggplot(d, aes(x, y)) +
 d = bs
 
 formula = y ~ x
+
 
 p2 <- ggplot(d, aes(x, y)) +
   geom_point(aes(color = Management_Area), size = 1, alpha = 0.2) +
