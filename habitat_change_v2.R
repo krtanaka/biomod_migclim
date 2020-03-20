@@ -1,4 +1,9 @@
 library(sp)
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(colorRamps)
+library(ggalluvial)
 
 rm(list = ls())
 
