@@ -144,12 +144,8 @@ season = list("annual")
 
 for (j in 1:length(season)){
   
-<<<<<<< HEAD
-  # j = 1
-=======
   j = 1
->>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
-  
+
   df <- read_csv("Biomod_1_80_annual.csv") #lobster fall biomod output
   
   #choose analysis
@@ -275,10 +271,10 @@ for (j in 1:length(season)){
   ks = cbind(ks, area)
   ks$Nearshore_Area <- ifelse(ks$Nearshore_Area %in% c("EEZ Nearshore Management Area 1",
                                                        "EEZ Nearshore Outer Cape Lobster Management Area"), 
-                              "GOM_GBK Neashore Management Area", 
+                              "GOM_GBK Nearshore Management Area", 
                               ifelse(ks$Nearshore_Area %in% c("EEZ Nearshore Management Area 2", 
                                                               "EEZ Nearshore Management Area 4"), 
-                                     "SNE Neashore Management Area",
+                                     "SNE Nearshore Management Area",
                                      "NA"))
   # qplot(ks$x, ks$y, colour = ks$Nearshore_Area)
   
@@ -296,9 +292,10 @@ for (j in 1:length(season)){
   ks_df = rbind(ks1, ks2)
   
   ks_df$Area = gsub('GBK', 'GB', ks_df$Area)
-  ks_df$Area <- gsub(' Neashore Management Area', ' Neashore', ks_df$Area)
-  
-  scale_x_longitude <- function(xmin=-180, xmax=180, step=1, ...) {
+  ks_df$Area <- gsub(' Nearshore Management Area', ' Nearshore', ks_df$Area)
+  ks_df$Species = ifelse(j==1, "Sea_scallop_annual", "Sea_scallop_annual")
+
+    scale_x_longitude <- function(xmin=-180, xmax=180, step=1, ...) {
     xbreaks <- seq(xmin,xmax,step)
     xlabels <- unlist(lapply(xbreaks, function(x) ifelse(x < 0, parse(text=paste0(x,"^o", "*W")), ifelse(x > 0, parse(text=paste0(x,"^o", "*E")),x))))
     return(scale_x_continuous("", breaks = xbreaks, labels = xlabels, expand = c(0, 0), ...))
@@ -335,7 +332,7 @@ for (j in 1:length(season)){
   #   labs(title = "", x = "Lon", y = "Lat", color = "P < 0.05") +
   #   theme(legend.justification = c(0,1), legend.position = c(0,1))
   
-  p1 = ggplot(data = ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),], 
+  p1 = ggplot(data = ks_df[which(ks_df$Area %in% c("GOM_GB Nearshore", "SNE Nearshore")),], 
               aes(x = x, y = y, fill = D)) +
     geom_raster(interpolate = TRUE) +
     scale_fill_gradientn(colours = col(length(unique(ks_df$D)))) + #parura(100)
@@ -348,7 +345,7 @@ for (j in 1:length(season)){
     scale_y_latitude(ymin=-180, ymax=180, step=2) +
     ggtitle(paste0("Sea_scallop_", season[j]))
   
-  p2 = ggplot(data = ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),], 
+  p2 = ggplot(data = ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Nearshore", "SNE Nearshore")),], 
               aes(x = x, y = y, fill = P_0.05)) +
     geom_raster(interpolate = F) +
     scale_fill_gradientn(colours = col(length(unique(ks_df$P_0.05)))) + #parura(100)
@@ -361,11 +358,13 @@ for (j in 1:length(season)){
     scale_y_latitude(ymin=-180, ymax=180, step=2) +
     ggtitle(paste0("Sea_scallop_", season[j]))
   
+  save(ks_df, file = paste0("/Users/Kisei/Desktop/Scallop_", season[[j]], ".RData"))
+  
   # map1 = ks_df[,c("x","y","Area","P_0.05")]; map1$Type = "P-value"; colnames(map1) = c("x","y","Area","Stat", "Type")
   # map2 = ks_df[,c("x","y","Area","D")]; map2$Type = "D"; colnames(map2) = c("x","y","Area","Stat", "Type")
   # map = rbind(map1, map2)
   
-  # p2 = ggplot(data = map[which(map$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),],  
+  # p2 = ggplot(data = map[which(map$Area %in% c("GOM_GB", "SNE", "GOM_GB Nearshore", "SNE Nearshore")),],  
   #             aes(x = x, y = y)) +
   #   geom_raster(aes(fill = Stat), interpolate = F) + 
   #   facet_grid(Type~Area) + 
@@ -409,8 +408,8 @@ for (j in 1:length(season)){
   # grid::grid.draw(legend)
   # dev.off()
   
-  d1 = summarySE(ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),], measurevar = "D", groupvars = c("Area"))
-  d2 = summarySE(ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Neashore", "SNE Neashore")),], measurevar = "P_0.05", groupvars = c("Area"), na.rm = T)
+  d1 = summarySE(ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Nearshore", "SNE Nearshore")),], measurevar = "D", groupvars = c("Area"))
+  d2 = summarySE(ks_df[which(ks_df$Area %in% c("GOM_GB", "SNE", "GOM_GB Nearshore", "SNE Nearshore")),], measurevar = "P_0.05", groupvars = c("Area"), na.rm = T)
   
   # write.csv(d1, paste0("/Users/Kisei/Google Drive/Research/Manuscripts/Biomod/", paste0("Sea_scallop_", season[j]), "_D.csv"))
   # write.csv(d2, paste0("/Users/Kisei/Google Drive/Research/Manuscripts/Biomod/", paste0("Sea_scallop_", season[j]), "_P.csv"))
@@ -509,12 +508,12 @@ for (j in 1:length(season)){
     }
     
     if(i == 3) {
-      dd = df[which(df$Nearshore_Area == "GOM_GBK Neashore Management Area"),]
-      Area = "GOM_GB Neashore"}
+      dd = df[which(df$Nearshore_Area == "GOM_GBK Nearshore Management Area"),]
+      Area = "GOM_GB Nearshore"}
     
     if(i == 4) {
-      dd = df[which(df$Nearshore_Area == "SNE Neashore Management Area"),]
-      Area = "SNE Neashore"
+      dd = df[which(df$Nearshore_Area == "SNE Nearshore Management Area"),]
+      Area = "SNE Nearshore"
     }
     
     x = as.vector(t(dd[,10:29])) #first 10 years
@@ -571,8 +570,8 @@ for (j in 1:length(season)){
   xy_2 = rbind(x,y)
   xy_2$Area = Area
   
-  dd = df[which(df$Nearshore_Area == "GOM_GBK Neashore Management Area"),]
-  Area = "GOM_GB Neashore"
+  dd = df[which(df$Nearshore_Area == "GOM_GBK Nearshore Management Area"),]
+  Area = "GOM_GB Nearshore"
   x = as.vector(t(dd[,10:29])) #first 10 years
   y = as.vector(t(dd[,70:length(dd)])) #last 10 years
   x = data.frame(x)
@@ -584,8 +583,8 @@ for (j in 1:length(season)){
   xy_3 = rbind(x,y)
   xy_3$Area = Area
   
-  dd = df[which(df$Nearshore_Area == "SNE Neashore Management Area"),]
-  Area = "SNE Neashore"
+  dd = df[which(df$Nearshore_Area == "SNE Nearshore Management Area"),]
+  Area = "SNE Nearshore"
   x = as.vector(t(dd[,10:29])) #first 10 years
   y = as.vector(t(dd[,70:length(dd)])) #last 10 years
   x = data.frame(x)
