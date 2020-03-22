@@ -628,29 +628,20 @@ for (j in 1:length(season)){
     group_by(period, Area) %>% 
     summarise(median = median(value))
   
-<<<<<<< HEAD
   # pdf(paste0("/Users/Kisei/Desktop/Lobster_Area_", season[[j]], ".pdf"), width = 3, height = 6) 
   png(paste0("/Users/Kisei/Desktop/Lobster_Area_", season[[j]], ".png"), width = 3, height = 6, res = 500, units = "in") 
-  p = ggplot(xy, aes(x = value, fill = period, color = period)) +
-    # geom_histogram(position="identity", alpha = 0.5, bins = 50) +
-    geom_histogram(aes(y=..count..), position="identity", alpha = 0.5, bins = 50) +
-=======
-  pdf(paste0("/Users/Kisei/Desktop/Lobster_Area_", season[[j]], ".pdf"), width = 3, height = 6) 
+  # pdf(paste0("/Users/Kisei/Desktop/Lobster_Area_", season[[j]], ".pdf"), width = 3, height = 6) 
+
   p = ggplot(xy, aes(x = value, fill = period, color = period)) +
     # geom_histogram(position="identity", alpha = 0.5, bins = 50) +
     geom_histogram(aes(y=..density..), position="identity", alpha = 0.5, bins = 50) +
->>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
     # geom_histogram(aes(y=..count../sum(..count..)), position="identity", alpha = 0.5, bins = 50) +
     # geom_histogram(aes(y=..ncount..), position="identity", alpha = 0.5, bins = 50) +
     # geom_density(alpha = 0.3) +
     facet_wrap(~Area, scales = "free_y", ncol = 1) +
     geom_vline(data=mu, aes(xintercept=median, color=period),
                linetype="dashed",
-<<<<<<< HEAD
                size = 0.5) +
-=======
-               size = 1.5) +
->>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
     xlab("Habitat Suitability") +
     ylab(" ") +
     xlim(0,1)+ 
@@ -660,21 +651,17 @@ for (j in 1:length(season)){
     #            x = Inf, y = Inf, hjust = 1, vjust = 1, label.size = NA,
     #            inherit.aes = FALSE)
     geom_label(data = prob, aes(label= paste0("First_10_yrs=", round(prob1, 2), "\nLast_10_yrs=", round(prob2, 2))),
-<<<<<<< HEAD
                x = Inf, y = Inf, hjust = 1, vjust = 1, label.size = NA, size = 3, alpha = 0.5,
                inherit.aes = FALSE)
   print(p)
   dev.off()
-  
-  save(xy, file = paste0("/Users/Kisei/Desktop/Lobster_Area_", season[[j]], ".RData"))
-  save(mu, file = paste0("/Users/Kisei/Desktop/Lobster_Area_Mu_", season[[j]], ".RData"))
-  save(prob, file = paste0("/Users/Kisei/Desktop/Lobster_Area_Prob_", season[[j]], ".RData"))
-=======
-               x = Inf, y = Inf, hjust = 1, vjust = 1, label.size = NA, size = 3,
-               inherit.aes = FALSE)
-  print(p)
-  dev.off()
->>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
+
+save(xy, file = paste0("/Users/Kisei/Desktop/Lobster_Area_", season[[j]], ".RData"))
+save(mu, file = paste0("/Users/Kisei/Desktop/Lobster_Area_Mu_", season[[j]], ".RData"))
+save(prob, file = paste0("/Users/Kisei/Desktop/Lobster_Area_Prob_", season[[j]], ".RData"))
+
+print(p)
+dev.off()
 
 }
 

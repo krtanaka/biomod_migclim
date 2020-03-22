@@ -14,10 +14,14 @@ xy = rbind(lf, ls, sa)
 mu = rbind(mlf, mls, msa)
 prob = rbind(plf, pls, psa)
 
+xy$period <- relevel(xy$period, "First_10_years")
+
+
 png("/Users/Kisei/Desktop/Area.png", width = 7, height = 7, res = 500, units = "in") 
 ggplot(xy, aes(x = value, fill = period, color = period)) +
   geom_histogram(aes(y =..count..), position = "identity", alpha = 0.5, bins = 50) +
-  facet_grid(Area ~ Species, scales = "free_y") +
+  # geom_histogram(aes(y=..count../sum(..count..)), position = "identity", alpha = 0.5, bins = 50) +
+  facet_grid(Area~ Species, scales = "free") +
   geom_vline(data = mu, aes(xintercept = median, color = period),
              linetype = "dashed",
              size = 0.5) +
@@ -25,7 +29,7 @@ ggplot(xy, aes(x = value, fill = period, color = period)) +
   scale_fill_discrete("") +
   scale_x_continuous(limits = c(0,1), expand = c(0.05, 0.05)) + 
   xlab("Habitat Suitability") +
-  ylab(" ") +
+  ylab("Count") +
   theme_pubr(I(10)) + 
   theme(legend.position = "bottom", 
         legend.justification = c(1,0),
@@ -35,5 +39,7 @@ ggplot(xy, aes(x = value, fill = period, color = period)) +
              x = Inf, y = Inf, 
              hjust = 1, vjust = 1, 
              label.size = NA, size = 3, alpha = 0.5,
-             inherit.aes = FALSE)
+             inherit.aes = FALSE) + 
+  guides(fill = guide_legend(override.aes = list(linetype = 0)),
+         color = guide_legend(override.aes = list(linetype = 0)))
 dev.off()

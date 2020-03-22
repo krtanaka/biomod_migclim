@@ -1,4 +1,4 @@
-load(paste0(dir, "biomod_migclim/lobster/lobster_survey_data_spring_fall_combined_1984-2016.RData")) #load survey data
+load("/Users/Kisei/biomod_migclim/lobster/lobster_survey_data_spring_fall_combined_1984-2016.RData") #load survey data
 
 xlims <- range(pretty(lobster$Lon))
 ylims <- range(pretty(lobster$Lat))
@@ -18,7 +18,7 @@ lobster=subset(lobster, Vessel == "CT")
 xlims <- range(pretty(lobster$Lon))
 ylims <- range(pretty(lobster$Lat))
 xlims <- c( -74, -71.5)
-ylims <- c(40.75,41.35)
+ylims <- c(40.75,41.35)==+=
 
 l = ggplot()+
   geom_point(data = lobster, aes(x=Lon, y=Lat, color=log10(CPUE+1)), size = 5, alpha = 0.1) +

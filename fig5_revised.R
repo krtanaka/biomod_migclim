@@ -8,7 +8,7 @@ colnames(sa) = c('x', 'y', 'Management_Area', 'Model', 'Lobster_Scallop', 'Speci
 
 data = rbind(lf, ls, sa)
 
-png("/Users/Kisei/Desktop/Area.png", width = 7, height = 7, res = 500, units = "in") 
+png("/Users/Kisei/Desktop/Area.png", width = 6, height = 6, res = 500, units = "in") 
 ggplot(data, aes(x = x, y = y, color = Model)) +
   geom_line( data = subset( data, !(Model %in% 'Ensemble') ),
              size = I( 0.2 )) +
@@ -18,9 +18,9 @@ ggplot(data, aes(x = x, y = y, color = Model)) +
              size = I( 1 )) +
   theme_pubr(base_size = I(10)) +
   scale_color_discrete("") + 
-  theme(legend.position = "right", 
+  theme(legend.position = "none", 
         legend.justification = c(1,0)) + 
-  facet_wrap(.~ Species + Management_Area, scales = "free_y") +
-  # facet_grid(Management_Area ~ Species, scales = "free_y") +
+  # facet_wrap(.~ Species + Management_Area, scales = "free_y", dir = "v") +
+  facet_grid(Management_Area ~ Species, scales = "free") +
   labs(x = "Model Year", y = "Relative Habitat Suitability")
 dev.off()

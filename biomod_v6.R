@@ -1,9 +1,6 @@
 rm(list = ls())
-<<<<<<< HEAD
 
-=======
 # load the library
->>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
 library(biomod2)
 library(raster)
 library(readr)
@@ -24,17 +21,14 @@ library(ggpubr)
 
 dir = paste0("/Users/", Sys.info()[7], "/")
 
-sp = c("lobster", "scallop")[2]
-<<<<<<< HEAD
+sp = c("lobster", "scallop")[1]
 op = c("tuned", "default")[1]
 
 # cl = makeCluster(detectCores()-1); registerDoParallel(cl)
-=======
-op = c("tuned_lobster", "tuned_scallop", "default")[2]
+op = c("tuned_lobster", "tuned_scallop", "default")[1]
 
-cl = makeCluster(64); registerDoParallel(cl)
+# cl = makeCluster(64); registerDoParallel(cl)
 # cl = makeCluster(8); registerDoParallel(cl)
->>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
 # stopCluster(cl)
 
 if (sp == "lobster") {

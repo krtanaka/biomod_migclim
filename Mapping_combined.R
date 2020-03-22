@@ -43,26 +43,35 @@ xlims <- range(pretty(df$x));ylims <- range(pretty(df$y))
 
 p1 = ggplot(data = df[which(df$Area %in% c("GOM_GB", "SNE", "GOM_GB Nearshore", "SNE Nearshore")),], 
             aes(x = x, y = y, fill = D)) +
-        geom_raster(interpolate = TRUE) +
-        scale_fill_gradientn(colours = col(length(unique(df$D)))) + #parura(100)
+        geom_raster(interpolate = F) +
+        scale_fill_viridis_c() + 
+        # scale_fill_gradientn(colours = col(length(unique(df$D))),
+        #                      values = scales::rescale(c(-0.5, -0.3, 0, 0.3, 0.5))) +
         facet_grid(Area~Species, scales = "free") + 
         coord_quickmap(xlim = xlims,ylim = ylims) +
         borders(xlim = xlims,ylim = ylims, fill = "gray") +
         theme_pubr(I(10)) + 
-        theme(legend.position="right", axis.text.x = element_text(angle = 45, hjust = 1)) + 
-        scale_x_longitude(xmin=-180, xmax=180, step=2) +
+        theme(legend.position="right", axis.text.x = element_text(angle = 0, hjust = 1)) + 
+        scale_x_longitude(xmin=-180, xmax=180, step=5) +
         scale_y_latitude(ymin=-180, ymax=180, step=2)
+
+source("/Users/Kisei/Google Drive/R/misc/color palette function.R")
+steps = c("blue", "red")
+col = color.palette(steps, space="rgb")
 
 p2 = ggplot(data = df[which(df$Area %in% c("GOM_GB", "SNE", "GOM_GB Nearshore", "SNE Nearshore")),], 
             aes(x = x, y = y, fill = P_0.05)) +
-        geom_raster(interpolate = TRUE) +
-        scale_fill_gradientn(colours = col(length(unique(ks_df$P_0.05)))) + #parura(100)
+        geom_raster(interpolate = F) +
+        scale_fill_viridis_c() + 
+        # 
+        # scale_fill_gradientn(colours = col(length(unique(ks_df$P_0.05))),  #parura(100)
+        #                      values = scales::rescale(c(-0.5, -0.3, 0, 0.3, 0.5))) +
         facet_grid(Area~Species, scales = "free") + 
         coord_quickmap(xlim = xlims,ylim = ylims) +
         borders(xlim = xlims,ylim = ylims, fill = "gray") +
         theme_pubr(I(10)) + 
-        theme(legend.position="right", axis.text.x = element_text(angle = 45, hjust = 1)) + 
-        scale_x_longitude(xmin=-180, xmax=180, step=2) +
+        theme(legend.position="right", axis.text.x = element_text(angle = 0, hjust = 1)) + 
+        scale_x_longitude(xmin=-180, xmax=180, step=5) +
         scale_y_latitude(ymin=-180, ymax=180, step=2)
 
 png("/Users/Kisei/Desktop/D_P0.05.png", units = "in", res = 500, width = 7, height = 7) #res = 500, width=6000,height=6000
