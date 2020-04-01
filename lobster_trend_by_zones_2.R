@@ -180,7 +180,7 @@ for (j in 1:length(season)){
   
   data$Lobster = data$Model
   
-  jpeg(paste0("/Users/Kisei/Desktop/lobster_change_legend.jpg"), res = 500, height = 1, width = 4, units = "in")
+  pdf(paste0("/Users/Kisei/Desktop/lobster_change_legend.pdf"), height = 1, width = 4)
   legend = ggplot(data, aes(x = x, y = y, color = Lobster)) +
     geom_line( data = subset( data, !(Model %in% 'Ensemble') ),
                # color = I( 'black' ),

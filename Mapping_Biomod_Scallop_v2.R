@@ -70,11 +70,8 @@ get_trend = function(time_step){
   
   POS = read.csv(paste0("Biomod_1_80_", time_step, ".csv"))
   
-<<<<<<< HEAD
   POS[,c(3:82)] = POS[,c(3:82)]*0.001
   
-=======
->>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
   POS = POS[,c(2,1,3:82)]
   
   names(POS)[1] = "Y"

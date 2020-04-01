@@ -1,10 +1,14 @@
 #open mapping biomod lobster and scallop, load spring, fall, annual SpatialPixelsDataFrame first
 
+annual$Sea_Scallop_Annual = annual$var1.pred
+annual$American_Lobster_Fall = fall$var1.pred
+annual$American_Lobster_Spring = spring$var1.pred
+
 annual$Sea_Scallop_Annual = annual$var1.pred*80
 annual$American_Lobster_Fall = fall$var1.pred*80
 annual$American_Lobster_Spring = spring$var1.pred*80
 
-png("/Users/Kisei/Desktop/habitat_mean.png", width = 18, height = 6, res = 500, units = "in")
+pdf("/Users/Kisei/Desktop/Figure_2.pdf", width = 18, height = 6)
 spplot(annual, 
        sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
        at = (0:100)/100, #for slope
@@ -19,7 +23,7 @@ png("/Users/Kisei/Desktop/habitat_change.png", width = 18, height = 6, res = 100
 max = max(abs(annual@data), na.rm = T)*100
 min = max*-1
 
-png("/Users/Kisei/Desktop/habitat_change.png", width = 18, height = 6, res = 500, units = "in")
+pdf("/Users/Kisei/Desktop/habitat_change.pdf", width = 18, height = 6)
 spplot(annual, 
        sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
        at = (min:max)/100, #for slope

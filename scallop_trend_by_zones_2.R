@@ -180,7 +180,7 @@ for (j in 1:length(season)){
   
   data$Scallop = data$Model
   
-  jpeg(paste0("/Users/Kisei/Desktop/scallop_change_legend.jpg"), res = 500, height = 1.5, width = 4.5, units = "in")
+  pdf(paste0("/Users/Kisei/Desktop/scallop_change_legend.pdf"),height = 1.5, width = 4.5)
   legend = ggplot(data, aes(x = x, y = y, color = Scallop)) +
     geom_line( data = subset( data, !(Model %in% 'Ensemble') ),
                # color = I( 'black' ),
