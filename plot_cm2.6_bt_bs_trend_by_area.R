@@ -166,26 +166,27 @@ d$Property = factor(d$Property, levels=c("Bottom Temperature Anomalies (deg C)",
 
 b_df <- ddply(d, .(Management_Area, Property), summarise, slope=round(summary(lm(scale(y)~x))$coefficients[2], 3))
 p_df <- ddply(d, .(Management_Area, Property), summarise, p=summary(lm(scale(y)~x))$coefficients[8])
-p_df$p = ifelse(p_df$p < 0.001, "<0.001", paste0("=", p_df$p))
+p_df$p = ifelse(p_df$p < 0.001, "<0.001", paste0("", p_df$p))
 summary = merge(b_df, p_df)
 summary
 
 p = ggplot(d, aes(x, y, color = Management_Area)) +
   geom_text(data = summary,
-            aes(label = paste0("\n β=", slope, "\n p=", p)),
+            aes(label = paste0("\n β=", slope, "\n p", p)),
             x = -Inf, y = -Inf,
             hjust = -0.1,
             vjust = -0.2,
             size = 3) +
   # geom_point(alpha = 0.5) +
   geom_line(alpha = 0.5) +
-  geom_smooth(method = "lm", se = F, size = 0.5) +
+  geom_smooth(method = "lm", se = F, size = 1) +
   facet_grid(Property~Management_Area, scales = "free") +
+  scale_x_continuous(breaks = seq(0, 960, by = 240)) + 
   theme_pubr(base_size = I(10)) + 
   theme(legend.position="none", axis.text.x = element_text(angle = 90, vjust = 0.7)) + 
   labs(x = "Model Month", y = "")
 
-png("/Users/Kisei/Desktop/bt_bs.png", res = 500, height = 6, width = 7, units = "in")
+png("/Users/Kisei/Desktop/bt_bs.png", res = 500, height = 5, width = 6, units = "in")
 p
 dev.off()
 
