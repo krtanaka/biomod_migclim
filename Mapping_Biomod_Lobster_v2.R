@@ -159,11 +159,7 @@ spring$Fall = fall$var1.pred
 
 source("/Users/Kisei/Google Drive/R/misc/color palette function.R")
 
-<<<<<<< HEAD
 max = max(spring@data, na.rm = T)*12000
-=======
-max = max(spring@data, na.rm = T)*120
->>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
 min = max*-1
 
 # png("C:/Users/Kisei/Google Drive/R/Biomod/Habitat_Change.png", width = 4000, height = 5000, res = 500)
@@ -171,11 +167,7 @@ png("/Users/Kisei/Desktop/Lobster_Habitat_Change_Season.png", width = 2000, heig
 spplot(spring, 
        main=list(label="American lobster",cex=1.5),
        sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
-<<<<<<< HEAD
        at = (min:max)/10000, #for slope
-=======
-       at = (min:max)/100, #for slope
->>>>>>> c6a54766214084fa3f5a0b3ca60e276f5475b34e
        col.regions = col,
        zcol = c("Spring", "Fall"),
        scales=list(draw=T),
