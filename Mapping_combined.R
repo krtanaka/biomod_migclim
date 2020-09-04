@@ -8,7 +8,6 @@ annual$Sea_Scallop_Annual = annual$var1.pred*80
 annual$American_Lobster_Fall = fall$var1.pred*80
 annual$American_Lobster_Spring = spring$var1.pred*80
 
-pdf("/Users/Kisei/Desktop/Figure_2.pdf", width = 18, height = 6)
 spplot(annual, 
        sp.layout = list(list("sp.polygons", countriesHigh, lwd=0.1, fill="grey")),
        at = (0:100)/100, #for slope
@@ -17,7 +16,6 @@ spplot(annual,
        zcol = c("American_Lobster_Fall", "American_Lobster_Spring", "Sea_Scallop_Annual"),
        scales=list(draw=T),
        colorkey = T) 
-dev.off()
 
 png("/Users/Kisei/Desktop/habitat_change.png", width = 18, height = 6, res = 100, units = "in")
 max = max(abs(annual@data), na.rm = T)*100
