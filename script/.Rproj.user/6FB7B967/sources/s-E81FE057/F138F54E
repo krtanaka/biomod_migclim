@@ -1,0 +1,26 @@
+{
+    "id": "F138F54E",
+    "path": "C:/Users/kisei.tanaka/biomod_migclim/script/Fit_Biomod_Squid.R",
+    "project_path": "Fit_Biomod_Squid.R",
+    "type": "r_source",
+    "hash": "798980165",
+    "contents": "",
+    "dirty": false,
+    "created": 1659133412030.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "25,23",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1659133430,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1659133430151,
+    "read_only": false,
+    "read_only_alternatives": []
+}

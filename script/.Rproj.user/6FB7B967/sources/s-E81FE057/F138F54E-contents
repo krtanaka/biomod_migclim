@@ -23,7 +23,7 @@ op = c("tuned", "default")[2]
 
 select = dplyr::select
 
-sp = read_csv("/Users/kisei.tanaka/Desktop/SDM_Loligo_NY_BIGHT/Loligo_1992_present_NEFSC_SPRING.csv") #load survey data
+sp = read_csv("data/Loligo_1992_present_NEF SC_SPRING.csv") #load survey data
 fl = read_csv("/Users/kisei.tanaka/Desktop/SDM_Loligo_NY_BIGHT/Loligo_1992_present_NEFSC_FALL.csv") #load survey data
 
 sp = sp %>% select(lon, lat, depth, salinity, btemp, num) %>% as.data.frame()
