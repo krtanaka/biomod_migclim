@@ -23,8 +23,8 @@ op = c("tuned", "default")[2]
 
 select = dplyr::select
 
-sp = read_csv("data/Loligo_1992_present_NEF SC_SPRING.csv") #load survey data
-fl = read_csv("/Users/kisei.tanaka/Desktop/SDM_Loligo_NY_BIGHT/Loligo_1992_present_NEFSC_FALL.csv") #load survey data
+sp = read_csv("data/Loligo_1992_present_NEFSC_SPRING.csv") #load survey data
+fl = read_csv("data/Loligo_1992_present_NEFSC_FALL.csv") #load survey data
 
 sp = sp %>% select(lon, lat, depth, salinity, btemp, num) %>% as.data.frame()
 fl = fl %>% select(lon, lat, depth, salinity, btemp, num) %>% as.data.frame()
@@ -60,7 +60,7 @@ file.copy(from = "maxent.jar",
 
 myBiomodOption = BIOMOD_ModelingOptions(MAXENT.Phillips = list(path_to_maxent.jar = paste0("/Users/", Sys.info()[7], "/Desktop/maxent.jar")))
 
-source("Biomod_Tuning_KRT.R")
+source("script/Biomod_Tuning_KRT.R")
 
 time.seq <- system.time(
   Biomod.tuning <- BIOMOD_tuning_KRT(myBiomodData,
@@ -261,9 +261,9 @@ myBiomodModelOut = BIOMOD_Modeling(
     # 'SRE',
     # 'FDA',
     # 'MARS',
-    'RF',
+    'RF'),
     # 'MAXENT.Tsuruoka',
-    'MAXENT.Phillips'),
+    # 'MAXENT.Phillips'),
   models.options = myBiomodOption,
   NbRunEval = 3,
   DataSplit = 80,
@@ -286,8 +286,8 @@ myBiomodProj <- BIOMOD_Projection(
   clamping.mask = F,
   output.format = '.grd')
 
-# myCurrentProj <- get_predictions(myBiomodProj)
-# plot(myCurrentProj, zlim = c(0,1000))
+myCurrentProj <- get_predictions(myBiomodProj)
+plot(myCurrentProj, zlim = c(0,1000))
 
 myBiomodModelEval <- get_evaluations(myBiomodModelOut)
 
@@ -317,9 +317,9 @@ models = c(
   # 'SRE',
   # 'FDA',
   # 'MARS',
-  'RF',
+  'RF')
   # 'MAXENT.Tsuruoka',
-  'MAXENT.Phillips')
+  # 'MAXENT.Phillips')
 
 tss = cbind(models, tss)
 colnames(tss) = c("SDM", "TSS_RUN1","TSS_RUN2","TSS_RUN3")
